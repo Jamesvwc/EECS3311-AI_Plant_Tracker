@@ -28,7 +28,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>36</x>
+      <x>198</x>
       <y>30</y>
       <w>18</w>
       <h>1674</h>
@@ -39,7 +39,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>186</x>
+      <x>348</x>
       <y>18</y>
       <w>18</w>
       <h>1686</h>
@@ -50,7 +50,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>336</x>
+      <x>498</x>
       <y>18</y>
       <w>18</w>
       <h>1686</h>
@@ -61,7 +61,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>486</x>
+      <x>648</x>
       <y>18</y>
       <w>18</w>
       <h>1686</h>
@@ -72,7 +72,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>636</x>
+      <x>798</x>
       <y>18</y>
       <w>18</w>
       <h>1686</h>
@@ -83,7 +83,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>786</x>
+      <x>948</x>
       <y>18</y>
       <w>18</w>
       <h>1686</h>
@@ -94,7 +94,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>936</x>
+      <x>1098</x>
       <y>18</y>
       <w>18</w>
       <h>1686</h>
@@ -105,7 +105,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1086</x>
+      <x>1248</x>
       <y>18</y>
       <w>18</w>
       <h>1686</h>
@@ -116,7 +116,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1236</x>
+      <x>1398</x>
       <y>18</y>
       <w>18</w>
       <h>1686</h>
@@ -127,7 +127,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1386</x>
+      <x>1548</x>
       <y>18</y>
       <w>18</w>
       <h>1686</h>
@@ -138,7 +138,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1536</x>
+      <x>1698</x>
       <y>18</y>
       <w>18</w>
       <h>1686</h>
@@ -149,7 +149,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1686</x>
+      <x>1848</x>
       <y>18</y>
       <w>18</w>
       <h>1686</h>
@@ -160,7 +160,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1836</x>
+      <x>1998</x>
       <y>18</y>
       <w>18</w>
       <h>1686</h>
@@ -171,7 +171,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1986</x>
+      <x>2148</x>
       <y>18</y>
       <w>18</w>
       <h>1686</h>
@@ -182,7 +182,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>2136</x>
+      <x>2298</x>
       <y>18</y>
       <w>18</w>
       <h>1686</h>
@@ -193,7 +193,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>168</x>
+      <x>330</x>
       <y>300</y>
       <w>1254</w>
       <h>324</h>
@@ -204,7 +204,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>168</x>
+      <x>330</x>
       <y>444</y>
       <w>1254</w>
       <h>24</h>
@@ -216,7 +216,7 @@
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>180</x>
+      <x>342</x>
       <y>306</y>
       <w>138</w>
       <h>12</h>
@@ -227,7 +227,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>6</x>
+      <x>168</x>
       <y>636</y>
       <w>2178</w>
       <h>1044</h>
@@ -238,7 +238,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>6</x>
+      <x>168</x>
       <y>714</y>
       <w>2178</w>
       <h>24</h>
@@ -250,7 +250,7 @@
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>12</x>
+      <x>174</x>
       <y>642</y>
       <w>138</w>
       <h>18</h>
@@ -261,7 +261,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1662</x>
+      <x>1824</x>
       <y>972</y>
       <w>516</w>
       <h>360</h>
@@ -272,7 +272,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1662</x>
+      <x>1824</x>
       <y>1020</y>
       <w>516</w>
       <h>24</h>
@@ -284,7 +284,7 @@
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>1674</x>
+      <x>1836</x>
       <y>978</y>
       <w>126</w>
       <h>12</h>
@@ -295,7 +295,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1668</x>
+      <x>1830</x>
       <y>1092</y>
       <w>504</w>
       <h>222</h>
@@ -306,7 +306,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1668</x>
+      <x>1830</x>
       <y>1140</y>
       <w>504</w>
       <h>24</h>
@@ -318,7 +318,7 @@
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>1680</x>
+      <x>1842</x>
       <y>1104</y>
       <w>114</w>
       <h>12</h>
@@ -329,7 +329,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>318</x>
+      <x>480</x>
       <y>1398</y>
       <w>1854</w>
       <h>222</h>
@@ -340,7 +340,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>318</x>
+      <x>480</x>
       <y>1494</y>
       <w>1854</w>
       <h>24</h>
@@ -352,7 +352,7 @@
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>342</x>
+      <x>504</x>
       <y>1404</y>
       <w>108</w>
       <h>18</h>
@@ -363,7 +363,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>36</x>
+      <x>198</x>
       <y>54</y>
       <w>168</w>
       <h>24</h>
@@ -375,7 +375,7 @@ submitRequest(text, photo)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>186</x>
+      <x>348</x>
       <y>78</y>
       <w>168</w>
       <h>24</h>
@@ -387,7 +387,7 @@ identifyPlant(photo)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>336</x>
+      <x>498</x>
       <y>102</y>
       <w>318</w>
       <h>24</h>
@@ -399,7 +399,7 @@ run(AgentRequest)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>636</x>
+      <x>798</x>
       <y>126</y>
       <w>168</w>
       <h>24</h>
@@ -411,7 +411,7 @@ createPlan(request)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>636</x>
+      <x>798</x>
       <y>156</y>
       <w>168</w>
       <h>24</h>
@@ -423,7 +423,7 @@ Plan</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>636</x>
+      <x>798</x>
       <y>180</y>
       <w>318</w>
       <h>24</h>
@@ -435,7 +435,7 @@ executeTool("identifyPlant", photo)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>936</x>
+      <x>1098</x>
       <y>204</y>
       <w>168</w>
       <h>24</h>
@@ -447,7 +447,7 @@ execute(args)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1086</x>
+      <x>1248</x>
       <y>228</y>
       <w>168</w>
       <h>24</h>
@@ -459,7 +459,7 @@ resize(photo)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1086</x>
+      <x>1248</x>
       <y>252</y>
       <w>168</w>
       <h>24</h>
@@ -471,7 +471,7 @@ resized photo</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1086</x>
+      <x>1248</x>
       <y>282</y>
       <w>318</w>
       <h>24</h>
@@ -483,7 +483,7 @@ identify(photo)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1086</x>
+      <x>1248</x>
       <y>330</y>
       <w>318</w>
       <h>24</h>
@@ -495,7 +495,7 @@ ApiError</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>936</x>
+      <x>1098</x>
       <y>354</y>
       <w>168</w>
       <h>24</h>
@@ -507,7 +507,7 @@ ToolResult(error)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>636</x>
+      <x>798</x>
       <y>378</y>
       <w>318</w>
       <h>24</h>
@@ -519,7 +519,7 @@ ToolResult(error)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>336</x>
+      <x>498</x>
       <y>408</y>
       <w>318</w>
       <h>24</h>
@@ -531,7 +531,7 @@ AgentResponse(retry or describe in text)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>186</x>
+      <x>348</x>
       <y>432</y>
       <w>168</w>
       <h>24</h>
@@ -543,7 +543,7 @@ AgentResponse</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1086</x>
+      <x>1248</x>
       <y>480</y>
       <w>318</w>
       <h>24</h>
@@ -555,7 +555,7 @@ top 3 candidates with confidence</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>936</x>
+      <x>1098</x>
       <y>504</y>
       <w>168</w>
       <h>24</h>
@@ -567,7 +567,7 @@ ToolResult(candidates)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>636</x>
+      <x>798</x>
       <y>528</y>
       <w>318</w>
       <h>24</h>
@@ -579,7 +579,7 @@ ToolResult</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>336</x>
+      <x>498</x>
       <y>558</y>
       <w>318</w>
       <h>24</h>
@@ -591,7 +591,7 @@ AgentResponse(candidates)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>186</x>
+      <x>348</x>
       <y>582</y>
       <w>168</w>
       <h>24</h>
@@ -603,7 +603,7 @@ IdentificationResult</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>36</x>
+      <x>198</x>
       <y>618</y>
       <w>168</w>
       <h>24</h>
@@ -615,7 +615,7 @@ show candidates</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>36</x>
+      <x>198</x>
       <y>672</y>
       <w>168</w>
       <h>24</h>
@@ -627,7 +627,7 @@ share more photos</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>36</x>
+      <x>198</x>
       <y>750</y>
       <w>168</w>
       <h>24</h>
@@ -639,7 +639,7 @@ select candidate</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>186</x>
+      <x>348</x>
       <y>774</y>
       <w>168</w>
       <h>24</h>
@@ -651,7 +651,7 @@ confirmCandidate(candidate)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>336</x>
+      <x>498</x>
       <y>798</y>
       <w>168</w>
       <h>24</h>
@@ -663,7 +663,7 @@ listSpaces()</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>336</x>
+      <x>498</x>
       <y>828</y>
       <w>168</w>
       <h>24</h>
@@ -675,7 +675,7 @@ spaces</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>336</x>
+      <x>498</x>
       <y>852</y>
       <w>318</w>
       <h>24</h>
@@ -687,7 +687,7 @@ run(AgentRequest careLookup)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>636</x>
+      <x>798</x>
       <y>876</y>
       <w>318</w>
       <h>24</h>
@@ -699,7 +699,7 @@ executeTool("lookupCareInfo", species)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>936</x>
+      <x>1098</x>
       <y>900</y>
       <w>618</w>
       <h>24</h>
@@ -711,7 +711,7 @@ execute(args)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1536</x>
+      <x>1698</x>
       <y>924</y>
       <w>168</w>
       <h>24</h>
@@ -723,7 +723,7 @@ lookup(species)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1686</x>
+      <x>1848</x>
       <y>954</y>
       <w>168</w>
       <h>24</h>
@@ -735,7 +735,7 @@ getCareProfile(species)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1686</x>
+      <x>1848</x>
       <y>1002</y>
       <w>168</w>
       <h>24</h>
@@ -747,7 +747,7 @@ PlantCareProfile</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1686</x>
+      <x>1848</x>
       <y>1050</y>
       <w>168</w>
       <h>24</h>
@@ -759,7 +759,7 @@ X failure</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1686</x>
+      <x>1848</x>
       <y>1074</y>
       <w>168</w>
       <h>24</h>
@@ -771,7 +771,7 @@ getCareProfile(species) retry</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1686</x>
+      <x>1848</x>
       <y>1128</y>
       <w>168</w>
       <h>24</h>
@@ -783,7 +783,7 @@ PlantCareProfile</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1686</x>
+      <x>1848</x>
       <y>1176</y>
       <w>168</w>
       <h>24</h>
@@ -795,7 +795,7 @@ X failure</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1686</x>
+      <x>1848</x>
       <y>1200</y>
       <w>318</w>
       <h>24</h>
@@ -807,7 +807,7 @@ getCareProfile(species)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1962</x>
+      <x>2124</x>
       <y>1224</y>
       <w>216</w>
       <h>24</h>
@@ -819,7 +819,7 @@ generateStructured(search results, careTemplate)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1986</x>
+      <x>2148</x>
       <y>1254</y>
       <w>168</w>
       <h>24</h>
@@ -831,7 +831,7 @@ filled template</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1686</x>
+      <x>1848</x>
       <y>1278</y>
       <w>318</w>
       <h>24</h>
@@ -843,7 +843,7 @@ PlantCareProfile (source = web)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1536</x>
+      <x>1698</x>
       <y>1326</y>
       <w>168</w>
       <h>24</h>
@@ -855,7 +855,7 @@ PlantCareProfile</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>936</x>
+      <x>1098</x>
       <y>1356</y>
       <w>618</w>
       <h>24</h>
@@ -867,7 +867,7 @@ ToolResult</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>636</x>
+      <x>798</x>
       <y>1380</y>
       <w>318</w>
       <h>24</h>
@@ -879,7 +879,7 @@ ToolResult</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>636</x>
+      <x>798</x>
       <y>1428</y>
       <w>1518</w>
       <h>24</h>
@@ -891,7 +891,7 @@ generate(prompt, profile and spaces)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>636</x>
+      <x>798</x>
       <y>1452</y>
       <w>1518</w>
       <h>24</h>
@@ -903,7 +903,7 @@ care and placement explanation</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>336</x>
+      <x>498</x>
       <y>1482</y>
       <w>318</w>
       <h>24</h>
@@ -915,7 +915,7 @@ AgentResponse(explanation)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>636</x>
+      <x>798</x>
       <y>1530</y>
       <w>1518</w>
       <h>24</h>
@@ -927,7 +927,7 @@ generate(describe similar plant)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>636</x>
+      <x>798</x>
       <y>1554</y>
       <w>1518</w>
       <h>24</h>
@@ -939,7 +939,7 @@ similar plant description</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>336</x>
+      <x>498</x>
       <y>1578</y>
       <w>318</w>
       <h>24</h>
@@ -951,7 +951,7 @@ AgentResponse(similar plant notice, retry offer)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>186</x>
+      <x>348</x>
       <y>1620</y>
       <w>168</w>
       <h>24</h>
@@ -963,7 +963,7 @@ AgentResponse</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>18</x>
+      <x>180</x>
       <y>1644</y>
       <w>198</w>
       <h>24</h>
@@ -975,7 +975,7 @@ care info, placement, "do you own this plant?"</panel_attributes>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>12</x>
+      <x>174</x>
       <y>696</y>
       <w>222</w>
       <h>18</h>
@@ -986,7 +986,7 @@ care info, placement, "do you own this plant?"</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>0</x>
+      <x>162</x>
       <y>0</y>
       <w>90</w>
       <h>36</h>
@@ -998,7 +998,7 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>150</x>
+      <x>312</x>
       <y>0</y>
       <w>90</w>
       <h>24</h>
@@ -1009,7 +1009,7 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>294</x>
+      <x>456</x>
       <y>0</y>
       <w>90</w>
       <h>24</h>
@@ -1020,7 +1020,7 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>450</x>
+      <x>612</x>
       <y>0</y>
       <w>90</w>
       <h>24</h>
@@ -1031,7 +1031,7 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>600</x>
+      <x>762</x>
       <y>0</y>
       <w>90</w>
       <h>24</h>
@@ -1042,7 +1042,7 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>750</x>
+      <x>912</x>
       <y>0</y>
       <w>90</w>
       <h>24</h>
@@ -1053,7 +1053,7 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>900</x>
+      <x>1062</x>
       <y>0</y>
       <w>90</w>
       <h>24</h>
@@ -1064,7 +1064,7 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1044</x>
+      <x>1206</x>
       <y>0</y>
       <w>96</w>
       <h>24</h>
@@ -1075,7 +1075,7 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1200</x>
+      <x>1362</x>
       <y>0</y>
       <w>90</w>
       <h>24</h>
@@ -1086,7 +1086,7 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1344</x>
+      <x>1506</x>
       <y>0</y>
       <w>90</w>
       <h>24</h>
@@ -1097,7 +1097,7 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1500</x>
+      <x>1662</x>
       <y>0</y>
       <w>90</w>
       <h>24</h>
@@ -1108,7 +1108,7 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1644</x>
+      <x>1806</x>
       <y>0</y>
       <w>96</w>
       <h>24</h>
@@ -1119,7 +1119,7 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1794</x>
+      <x>1956</x>
       <y>0</y>
       <w>90</w>
       <h>24</h>
@@ -1130,7 +1130,7 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1944</x>
+      <x>2106</x>
       <y>0</y>
       <w>96</w>
       <h>24</h>
@@ -1141,7 +1141,7 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>2100</x>
+      <x>2262</x>
       <y>0</y>
       <w>90</w>
       <h>24</h>

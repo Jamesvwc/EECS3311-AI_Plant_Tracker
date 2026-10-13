@@ -4,8 +4,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>30</x>
-      <y>615</y>
+      <x>455</x>
+      <y>215</y>
       <w>15</w>
       <h>935</h>
     </coordinates>
@@ -15,8 +15,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>155</x>
-      <y>605</y>
+      <x>580</x>
+      <y>205</y>
       <w>15</w>
       <h>945</h>
     </coordinates>
@@ -26,8 +26,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>280</x>
-      <y>605</y>
+      <x>705</x>
+      <y>205</y>
       <w>15</w>
       <h>945</h>
     </coordinates>
@@ -37,8 +37,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>405</x>
-      <y>605</y>
+      <x>830</x>
+      <y>205</y>
       <w>15</w>
       <h>945</h>
     </coordinates>
@@ -48,8 +48,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>530</x>
-      <y>605</y>
+      <x>955</x>
+      <y>205</y>
       <w>15</w>
       <h>945</h>
     </coordinates>
@@ -59,8 +59,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>655</x>
-      <y>605</y>
+      <x>1080</x>
+      <y>205</y>
       <w>15</w>
       <h>945</h>
     </coordinates>
@@ -70,8 +70,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>780</x>
-      <y>605</y>
+      <x>1205</x>
+      <y>205</y>
       <w>15</w>
       <h>945</h>
     </coordinates>
@@ -81,8 +81,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>905</x>
-      <y>605</y>
+      <x>1330</x>
+      <y>205</y>
       <w>15</w>
       <h>945</h>
     </coordinates>
@@ -92,8 +92,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1030</x>
-      <y>605</y>
+      <x>1455</x>
+      <y>205</y>
       <w>15</w>
       <h>945</h>
     </coordinates>
@@ -103,8 +103,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1155</x>
-      <y>605</y>
+      <x>1580</x>
+      <y>205</y>
       <w>15</w>
       <h>945</h>
     </coordinates>
@@ -114,8 +114,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1280</x>
-      <y>605</y>
+      <x>1705</x>
+      <y>205</y>
       <w>15</w>
       <h>945</h>
     </coordinates>
@@ -125,8 +125,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1405</x>
-      <y>605</y>
+      <x>1830</x>
+      <y>205</y>
       <w>15</w>
       <h>945</h>
     </coordinates>
@@ -136,8 +136,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1530</x>
-      <y>605</y>
+      <x>1955</x>
+      <y>205</y>
       <w>15</w>
       <h>945</h>
     </coordinates>
@@ -147,8 +147,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1655</x>
-      <y>605</y>
+      <x>2080</x>
+      <y>205</y>
       <w>15</w>
       <h>945</h>
     </coordinates>
@@ -158,8 +158,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1015</x>
-      <y>815</y>
+      <x>1440</x>
+      <y>415</y>
       <w>170</w>
       <h>80</h>
     </coordinates>
@@ -169,8 +169,8 @@
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>1035</x>
-      <y>820</y>
+      <x>1460</x>
+      <y>420</y>
       <w>115</w>
       <h>15</h>
     </coordinates>
@@ -180,8 +180,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>15</x>
-      <y>890</y>
+      <x>440</x>
+      <y>490</y>
       <w>1670</w>
       <h>485</h>
     </coordinates>
@@ -191,8 +191,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>15</x>
-      <y>1160</y>
+      <x>440</x>
+      <y>760</y>
       <w>1670</w>
       <h>20</h>
     </coordinates>
@@ -203,8 +203,8 @@
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>35</x>
-      <y>895</y>
+      <x>460</x>
+      <y>495</y>
       <w>70</w>
       <h>15</h>
     </coordinates>
@@ -214,8 +214,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>15</x>
-      <y>1370</y>
+      <x>440</x>
+      <y>970</y>
       <w>1670</w>
       <h>165</h>
     </coordinates>
@@ -225,8 +225,8 @@
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>35</x>
-      <y>1375</y>
+      <x>460</x>
+      <y>975</y>
       <w>135</w>
       <h>15</h>
     </coordinates>
@@ -236,8 +236,8 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>30</x>
-      <y>635</y>
+      <x>455</x>
+      <y>235</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -248,8 +248,8 @@ submitRequest(text or photo or iCal)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>155</x>
-      <y>655</y>
+      <x>580</x>
+      <y>255</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -260,8 +260,8 @@ updateSchedule(input)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>280</x>
-      <y>675</y>
+      <x>705</x>
+      <y>275</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -272,8 +272,8 @@ run(AgentRequest updateSchedule)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>405</x>
-      <y>695</y>
+      <x>830</x>
+      <y>295</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -284,8 +284,8 @@ executeTool("updateSchedule", input)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>530</x>
-      <y>720</y>
+      <x>955</x>
+      <y>320</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -296,8 +296,8 @@ execute(args)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>655</x>
-      <y>740</y>
+      <x>1080</x>
+      <y>340</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -308,8 +308,8 @@ applyAvailability(input)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>780</x>
-      <y>760</y>
+      <x>1205</x>
+      <y>360</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -320,8 +320,8 @@ create(inputType)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>780</x>
-      <y>780</y>
+      <x>1205</x>
+      <y>380</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -332,8 +332,8 @@ importer</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>780</x>
-      <y>800</y>
+      <x>1205</x>
+      <y>400</y>
       <w>265</w>
       <h>20</h>
     </coordinates>
@@ -344,8 +344,8 @@ parse(input)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1015</x>
-      <y>845</y>
+      <x>1440</x>
+      <y>445</y>
       <w>170</w>
       <h>20</h>
     </coordinates>
@@ -356,8 +356,8 @@ generateStructured(input, availabilityTemplate)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1030</x>
-      <y>865</y>
+      <x>1455</x>
+      <y>465</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -368,8 +368,8 @@ slots and travel time</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>780</x>
-      <y>920</y>
+      <x>1205</x>
+      <y>520</y>
       <w>265</w>
       <h>20</h>
     </coordinates>
@@ -380,8 +380,8 @@ Availability</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>780</x>
-      <y>940</y>
+      <x>1205</x>
+      <y>540</y>
       <w>515</w>
       <h>20</h>
     </coordinates>
@@ -392,8 +392,8 @@ plan(plants, availability)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>780</x>
-      <y>960</y>
+      <x>1205</x>
+      <y>560</y>
       <w>515</w>
       <h>20</h>
     </coordinates>
@@ -404,8 +404,8 @@ new entries</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>780</x>
-      <y>980</y>
+      <x>1205</x>
+      <y>580</y>
       <w>640</w>
       <h>20</h>
     </coordinates>
@@ -416,8 +416,8 @@ run(RescheduleCommand)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1405</x>
-      <y>1000</y>
+      <x>1830</x>
+      <y>600</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -428,8 +428,8 @@ execute()</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>780</x>
-      <y>1025</y>
+      <x>1205</x>
+      <y>625</y>
       <w>890</w>
       <h>20</h>
     </coordinates>
@@ -440,8 +440,8 @@ update(entry) via notifyObservers(entry)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>655</x>
-      <y>1045</y>
+      <x>1080</x>
+      <y>645</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -452,8 +452,8 @@ entries</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>530</x>
-      <y>1065</y>
+      <x>955</x>
+      <y>665</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -464,8 +464,8 @@ ToolResult</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>405</x>
-      <y>1085</y>
+      <x>830</x>
+      <y>685</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -476,8 +476,8 @@ ToolResult</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>280</x>
-      <y>1105</y>
+      <x>705</x>
+      <y>705</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -488,8 +488,8 @@ AgentResponse(summary)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>155</x>
-      <y>1130</y>
+      <x>580</x>
+      <y>730</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -500,8 +500,8 @@ AgentResponse</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>30</x>
-      <y>1150</y>
+      <x>455</x>
+      <y>750</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -512,8 +512,8 @@ updated calendar</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>780</x>
-      <y>1190</y>
+      <x>1205</x>
+      <y>790</y>
       <w>265</w>
       <h>20</h>
     </coordinates>
@@ -524,8 +524,8 @@ X ParseError</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>655</x>
-      <y>1210</y>
+      <x>1080</x>
+      <y>810</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -536,8 +536,8 @@ ParseError</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>530</x>
-      <y>1230</y>
+      <x>955</x>
+      <y>830</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -548,8 +548,8 @@ ToolResult(error)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>405</x>
-      <y>1255</y>
+      <x>830</x>
+      <y>855</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -560,8 +560,8 @@ ToolResult(error)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>280</x>
-      <y>1275</y>
+      <x>705</x>
+      <y>875</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -572,8 +572,8 @@ AgentResponse(ask for clarification)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>155</x>
-      <y>1295</y>
+      <x>580</x>
+      <y>895</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -584,8 +584,8 @@ AgentResponse</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>30</x>
-      <y>1315</y>
+      <x>455</x>
+      <y>915</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -596,8 +596,8 @@ ask for another photo or text</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>30</x>
-      <y>1395</y>
+      <x>455</x>
+      <y>995</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -608,8 +608,8 @@ undo</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>155</x>
-      <y>1415</y>
+      <x>580</x>
+      <y>1015</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -620,8 +620,8 @@ undoScheduleChange()</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>280</x>
-      <y>1435</y>
+      <x>705</x>
+      <y>1035</y>
       <w>515</w>
       <h>20</h>
     </coordinates>
@@ -632,8 +632,8 @@ undoLast()</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>780</x>
-      <y>1460</y>
+      <x>1205</x>
+      <y>1060</y>
       <w>640</w>
       <h>20</h>
     </coordinates>
@@ -644,8 +644,8 @@ undoLast()</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1405</x>
-      <y>1480</y>
+      <x>1830</x>
+      <y>1080</y>
       <w>140</w>
       <h>20</h>
     </coordinates>
@@ -656,8 +656,8 @@ undo()</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>780</x>
-      <y>1500</y>
+      <x>1205</x>
+      <y>1100</y>
       <w>890</w>
       <h>20</h>
     </coordinates>
@@ -668,8 +668,8 @@ update(entry) via notifyObservers(entry)</panel_attributes>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>35</x>
-      <y>1335</y>
+      <x>460</x>
+      <y>935</y>
       <w>185</w>
       <h>15</h>
     </coordinates>
@@ -679,8 +679,8 @@ update(entry) via notifyObservers(entry)</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>0</x>
-      <y>590</y>
+      <x>425</x>
+      <y>190</y>
       <w>75</w>
       <h>30</h>
     </coordinates>
@@ -691,8 +691,8 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>125</x>
-      <y>590</y>
+      <x>550</x>
+      <y>190</y>
       <w>75</w>
       <h>20</h>
     </coordinates>
@@ -702,8 +702,8 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>245</x>
-      <y>590</y>
+      <x>670</x>
+      <y>190</y>
       <w>75</w>
       <h>20</h>
     </coordinates>
@@ -713,8 +713,8 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>375</x>
-      <y>590</y>
+      <x>800</x>
+      <y>190</y>
       <w>75</w>
       <h>20</h>
     </coordinates>
@@ -724,8 +724,8 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>500</x>
-      <y>590</y>
+      <x>925</x>
+      <y>190</y>
       <w>75</w>
       <h>20</h>
     </coordinates>
@@ -735,8 +735,8 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>625</x>
-      <y>590</y>
+      <x>1050</x>
+      <y>190</y>
       <w>75</w>
       <h>20</h>
     </coordinates>
@@ -746,8 +746,8 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>745</x>
-      <y>590</y>
+      <x>1170</x>
+      <y>190</y>
       <w>75</w>
       <h>20</h>
     </coordinates>
@@ -757,8 +757,8 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>870</x>
-      <y>590</y>
+      <x>1295</x>
+      <y>190</y>
       <w>75</w>
       <h>20</h>
     </coordinates>
@@ -768,8 +768,8 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>985</x>
-      <y>590</y>
+      <x>1410</x>
+      <y>190</y>
       <w>95</w>
       <h>20</h>
     </coordinates>
@@ -779,8 +779,8 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1125</x>
-      <y>590</y>
+      <x>1550</x>
+      <y>190</y>
       <w>75</w>
       <h>20</h>
     </coordinates>
@@ -790,8 +790,8 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1240</x>
-      <y>590</y>
+      <x>1665</x>
+      <y>190</y>
       <w>85</w>
       <h>20</h>
     </coordinates>
@@ -801,8 +801,8 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1375</x>
-      <y>590</y>
+      <x>1800</x>
+      <y>190</y>
       <w>75</w>
       <h>20</h>
     </coordinates>
@@ -812,8 +812,8 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1495</x>
-      <y>590</y>
+      <x>1920</x>
+      <y>190</y>
       <w>80</w>
       <h>20</h>
     </coordinates>
@@ -823,8 +823,8 @@ Plant Owner</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1615</x>
-      <y>590</y>
+      <x>2040</x>
+      <y>190</y>
       <w>90</w>
       <h>20</h>
     </coordinates>
