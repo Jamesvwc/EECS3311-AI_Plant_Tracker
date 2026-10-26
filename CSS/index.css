@@ -1,0 +1,20 @@
+body {
+    margin: 0;
+    background-color: #E5FFE0;
+}
+
+header {
+    background-color: #B9FFAD;
+    padding: 15px;
+}
+
+#homepageLink {
+    cursor: pointer;
+    text-decoration: none;
+    color: black;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 24px;
+}
