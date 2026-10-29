@@ -4,7 +4,7 @@ body {
 }
 
 header {
-    background-color: #B9FFAD;
+    background-color: #c2ccc1;
     padding: 15px;
     /* margin: 15px; */
     display: flex;
@@ -27,10 +27,17 @@ header h1 {
 header nav {
     margin-top: auto;
     margin-bottom: auto;
+    padding: 10px;
 }
 
 header nav a {
-    padding: 10px;
+    margin-right: 10px;
+    height: max-content;
+}
+
+header nav a:hover {
+    cursor: pointer;
+    text-decoration: none;
 }
 
 /* Dropdown */
@@ -48,11 +55,10 @@ header nav a {
 .dropdown-menu {
     display: none;
     position: absolute;
-    top: calc(100% + 10px);
+    top: calc(100% + 7px);
     background-color: #B9FFAD;
-    border: 1px solid #a0e898;
+    border: 1px solid #a0e898; /* #a0e898 */
     border-radius: 10px;
-    min-width: 160px;
     z-index: 100;
     border-radius: 10px;
     box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
@@ -64,12 +70,18 @@ header nav a {
     text-decoration: none;
     color: black;
     white-space: nowrap;
+    margin-right: 0;
 }
 
 .dropdown-menu a:hover {
     background-color: #a0e898;
+    border-radius: 10px;
 }
 
-.dropdown:hover .dropdown-menu {
+.dropdown-one:hover .dropdown-menu-one {
+    display: block;
+}
+
+.dropdown-two:hover .dropdown-menu-two {
     display: block;
 }
