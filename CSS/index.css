@@ -57,13 +57,8 @@ header nav a:hover {
     position: absolute;
     top: calc(100% + 7px);
     background-color: #B9FFAD;
-<<<<<<< HEAD
     border: 1px solid #a0e898; /* #a0e898 */
     border-radius: 10px;
-=======
-    border: 1px solid #a0e898;
-    min-width: 160px;
->>>>>>> e474b37 (temp)
     z-index: 100;
     border-radius: 10px;
     box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
