@@ -1,0 +1,187 @@
+body {
+    margin: 0;
+    background-color: #E5FFE0;
+}
+
+header {
+    background-color: #c2ccc1;
+    padding: 15px;
+    /* margin: 15px; */
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    /* position: relative; */
+}
+
+#homepageLink {
+    cursor: pointer;
+    text-decoration: none;
+    color: black;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+header nav {
+    margin-top: auto;
+    margin-bottom: auto;
+    padding: 10px;
+}
+
+header nav a {
+    margin-right: 10px;
+    height: max-content;
+}
+
+header nav a:hover {
+    cursor: pointer;
+    text-decoration: none;
+}
+
+/* Dropdown */
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-toggle {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 7px);
+    background-color: #B9FFAD;
+<<<<<<< HEAD
+    border: 1px solid #a0e898; /* #a0e898 */
+    border-radius: 10px;
+=======
+    border: 1px solid #a0e898;
+    min-width: 160px;
+>>>>>>> e474b37 (temp)
+    z-index: 100;
+    border-radius: 10px;
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 8px 12px;
+    text-decoration: none;
+    color: black;
+    white-space: nowrap;
+    margin-right: 0;
+}
+
+.dropdown-menu a:hover {
+    background-color: #a0e898;
+    border-radius: 10px;
+}
+
+.dropdown-one:hover .dropdown-menu-one {
+    display: block;
+}
+
+.dropdown-two:hover .dropdown-menu-two {
+    display: block;
+}
+
+/* ── Hero Banner ── */ /* REVIEW BELOW HERE */ 
+
+.hero {
+    background-color: #9eff99;
+    border-bottom: 2px solid #a0e898;
+    padding: 80px 24px;
+    text-align: center;
+    border-top: 2px solid black;
+}
+
+.hero-content {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.hero-title {
+    font-size: 2.4rem;
+    margin: 0 0 16px;
+    color: #1a3a1a;
+}
+
+.hero-subtitle {
+    font-size: 1.1rem;
+    color: #2e5e2e;
+    margin: 0 0 32px;
+    line-height: 1.6;
+}
+
+.hero-cta {
+    display: inline-block;
+    background-color: #2e7d32;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 14px 36px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.6);
+    transition: background-color 0.2s;
+}
+
+.hero-cta:hover {
+    background-color: #1b5e20;
+}
+
+/* ── Feature Cards ── */
+
+.features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: center;
+    padding: 60px 24px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.feature-card {
+    background-color: #B9FFAD;
+    border: 1px solid #a0e898;
+    border-radius: 14px;
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.6);
+    padding: 36px 28px;
+    flex: 1 1 240px;
+    max-width: 280px;
+    text-align: center;
+    text-decoration: none;
+    color: black;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.feature-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 3px 5px 0px rgba(0, 0, 0, 0.6);
+}
+
+.feature-icon {
+    font-size: 2.4rem;
+    display: block;
+    margin-bottom: 14px;
+}
+
+.feature-card h3 {
+    margin: 0 0 10px;
+    font-size: 1.15rem;
+    color: #1a3a1a;
+}
+
+.feature-card p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #2e5e2e;
+    line-height: 1.5;
+}
