@@ -180,3 +180,15 @@ header nav a:hover {
     color: #2e5e2e;
     line-height: 1.5;
 }
+
+/* Modal styling */
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+dialog {
+    background-color: #E5FFE0;
+    width: 50%;
+    height: 300px;
+}

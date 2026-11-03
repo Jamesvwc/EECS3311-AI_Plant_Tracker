@@ -73,32 +73,26 @@
             <section class="features">
                 <a href="#" class="feature-card">
                     <span class="feature-icon">&#128200;</span>
-                    <h3>Recommendations</h3>
+                    <h3>My Calendar</h3>
                     <p>Description for Recommendations</p>
                 </a>
 
-                <a href="#" class="feature-card">
+                <a href="#" class="feature-card" id="myPlantsCard">
                     <span class="feature-icon">&#127803;</span>
                     <h3>My Plants</h3>
-                    <p>Description for My Plants</p>
+                    <p>Description for My Plants (splits into owned and recommended plants, and spaces)</p>
                 </a>
 
                 <a href="#" class="feature-card">
                     <span class="feature-icon">&#128269;</span>
-                    <h3>Plant Identification</h3>
-                    <p>Description for Plant Identification</p>
+                    <h3>Plant Identification/Health Analysis</h3>
+                    <p>Description for Plant Identification/Health Analysis</p>
                 </a>
 
                 <a href="#" class="feature-card">
                     <span class="feature-icon">&#128269;</span>
-                    <h3>Calendar</h3>
-                    <p>Description for Calendar</p>
-                </a>
-
-                <a href="#" class="feature-card">
-                    <span class="feature-icon">&#128269;</span>
-                    <h3>Plant Analyzer</h3>
-                    <p>Description for Plant Analyzer</p>
+                    <h3>Friends</h3>
+                    <p>Description for Friends</p>
                 </a>
 
                 <a href="#" class="feature-card">
@@ -108,6 +102,18 @@
                 </a>
             </section>
         </main>
+
+        <dialog id="myPlantsDialog" closedby="any">
+            <h2>&#127803; My Plants</h2>
+            <p>Explore your owned plants, browse recommended plamts, and organize your personal spaces!</p>
+            <ul>
+                <li><a href="currentlistofplants.html">Current Plants</a></li>
+                <li><a href="recommendedplants.html">Recommendations</a></li>
+                <li><a href="#">Plant Spaces</a></li>
+            </ul>
+        </dialog>
+
+        <script src="JS/index.js"></script>
 
     </body>
 
