@@ -10,7 +10,7 @@ const input = document.getElementById('msgInput');
 
 launcher.addEventListener('click', () => {
     const open = chatBox.classList.toggle('open');
-    launcher.textContent = open ? '✕' : '💬';
+    launcher.textContent = open ? '✕' : '+';
     if (open) {
         input.focus();
     }
