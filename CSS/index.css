@@ -183,14 +183,57 @@ header nav a:hover {
 
 /* Modal styling */
 
-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.5);
+.dialog-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #555;
+    /* padding: 2px 6px; */
+    border-radius: 4px;
+}
+
+.dialog-close:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+    color: #000;
+}
+
+dialog::backdrop { 
+    background: rgba(0, 0, 0, 0.5);
 }
 
 dialog {
     background-color: #E5FFE0;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    margin: 0;
     width: 50%;
     height: 300px;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(20px) scale(.95);
+    transform-origin: center;
+    pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease, display .2s allow-discrete;
+}
+
+dialog[open] {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+@starting-style {
+  dialog[open] {
+    opacity: 0;
+    transform: translateY(20px) scale(.95);
+  }
 }
 
 /* Chatbox styling */
