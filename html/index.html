@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<!-- dsf -->
+<html Lang="En">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="author" content="James Woodward-Caradonna">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv=”X-UA-Compatible” content=”ie=edge”>
+        <title>Homepage</title>
+        <link rel="stylesheet" type="text/css" href="CSS/index.css" title="homepage" />
+
+        <!--playfair display font-->
+        <!-- <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet"> -->
+        <!---->
+        
+    </head>
+
+    <body>
+        <header>
+            <h1>
+                <a id="homepageLink" href="index.html">
+                    &#127800; PlantOrganizerdfsgsdfg
+                </a>
+            </h1>
+
+            <nav>
+                <a>
+                    Calendar
+                </a>
+                <div class="dropdown dropdown-one">
+                    <a class="dropdown-toggle">
+                        My Plants ▾
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-one">
+                        <a href="recommendedplants.html">Recommendations</a>
+                        <a href="currentlistofplants.html">Current Plants</a>
+                        <a href="#">Plant Spaces</a>
+                    </div>
+                </div>
+
+                <a>
+                    Plant Identification
+                </a>
+                <a>
+                    Chat
+                </a>
+                <div class="dropdown dropdown-two">
+                    <a class="dropdown-toggle">
+                        Account ▾
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-two">
+                        <a href="#">My Profile</a>
+                        <a href="#">Settings</a>
+                    </div>
+                </div>
+                <!-- ... -->
+            </nav>
+        </header>
+
+        <!-- review below here -->
+
+        <main>
+            <!-- Hero Banner -->
+            <section class="hero">
+                <div class="hero-content">
+                    <h2 class="hero-title">Welcome to PlantOrganizer</h2>
+                    <p class="hero-subtitle">Track your plants, get care recommendations, and identify species — all in one place.</p>
+                    <a href="tutorial.html" class="hero-cta">Get Started</a>
+                </div>
+            </section>
+
+            <!-- Feature Cards -->
+            <section class="features">
+                <a href="#" class="feature-card">
+                    <span class="feature-icon">&#128200;</span>
+                    <h3>My Calendar</h3>
+                    <p>Description for Recommendations</p>
+                </a>
+
+                <a href="#" class="feature-card" id="myPlantsCard">
+                    <span class="feature-icon">&#127803;</span>
+                    <h3>My Plants</h3>
+                    <p>Description for My Plants (splits into owned and recommended plants, and spaces)</p>
+                </a>
+
+                <a href="#" class="feature-card">
+                    <span class="feature-icon">&#128269;</span>
+                    <h3>Plant Identification/Health Analysis</h3>
+                    <p>Description for Plant Identification/Health Analysis</p>
+                </a>
+
+                <a href="#" class="feature-card">
+                    <span class="feature-icon">&#128269;</span>
+                    <h3>Friends</h3>
+                    <p>Description for Friends</p>
+                </a>
+
+                <a href="#" class="feature-card">
+                    <span class="feature-icon">&#128269;</span>
+                    <h3>Share Plant Watering Schedule</h3>
+                    <p>Description for Share Plant Watering Schedule</p>
+                </a>
+            </section>
+        </main>
+
+        <dialog id="myPlantsDialog">
+            <button class="dialog-close" id="myPlantsClose" aria-label="Close">&times;</button>
+            <h2>&#127803; My Plants</h2>
+            <p>Explore your owned plants, browse recommended plamts, and organize your personal spaces!</p>
+            <ul>
+                <li><a href="currentlistofplants.html">Current Plants</a></li>
+                <li><a href="recommendedplants.html">Recommendations</a></li>
+                <li><a href="#">Plant Spaces</a></li>
+            </ul>
+        </dialog>
+
+        <button class="chat-launcher" id="launcher" aria-label="Open chat">+</button>
+
+        <div class="chat-box" id="chatBox">
+            <div class="chat-header">Chat with us</div>
+            <div class="chat-messages" id="messages"></div>
+            <div class="chat-input">
+                <input id="msgInput" placeholder="Type a message..." />
+                <button id="sendBtn">Send</button>
+            </div>
+        </div>
+
+        <script src="JS/index.js"></script>
+
+    </body>
+
+</html>

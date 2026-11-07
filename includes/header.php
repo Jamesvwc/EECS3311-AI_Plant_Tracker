@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html Lang="En">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="author" content="James Woodward-Caradonna">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv=”X-UA-Compatible” content=”ie=edge”>
+        <title>Homepage</title>
+        <link rel="stylesheet" type="text/css" href="CSS/index.css" title="homepage" />
+
+        <!--playfair display font-->
+        <!-- <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet"> -->
+        <!---->
+        
+    </head>
+
+    <body>
+        <header>
+            <h1>
+                <a id="homepageLink" href="index.php">
+                    &#127800; PlantOrganizer
+                </a>
+            </h1>
+
+            <nav>
+                <a>
+                    Calendar
+                </a>
+                <div class="dropdown dropdown-one">
+                    <a class="dropdown-toggle">
+                        My Plants ▾
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-one">
+                        <a href="recommendedplants.php">Recommendations</a>
+                        <a href="currentlistofplants.php">Current Plants</a>
+                        <a href="#">Plant Spaces</a>
+                    </div>
+                </div>
+
+                <a>
+                    Plant Identification
+                </a>
+                <a>
+                    Chat
+                </a>
+                <div class="dropdown dropdown-two">
+                    <a class="dropdown-toggle">
+                        Account ▾
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-two">
+                        <a href="#">My Profile</a>
+                        <a href="#">Settings</a>
+                    </div>
+                </div>
+                <!-- ... -->
+            </nav>
+        </header>
