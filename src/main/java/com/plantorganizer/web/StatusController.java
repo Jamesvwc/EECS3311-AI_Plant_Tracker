@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.plantorganizer.common.ApiKeys;
+
 /**
  * Smoke-test endpoint: lets the frontend (and you) check that the backend is
  * running and which API keys were picked up from .env. It reports only
@@ -30,12 +32,8 @@ public class StatusController {
         return Map.of(
                 "status", "ok",
                 "keysConfigured", Map.of(
-                        "cohere", isSet(cohereKey),
-                        "perenual", isSet(perenualKey),
-                        "plantnet", isSet(plantnetKey)));
-    }
-
-    private static boolean isSet(String key) {
-        return key != null && !key.isBlank() && !key.startsWith("YOUR_");
+                        "cohere", ApiKeys.isConfigured(cohereKey),
+                        "perenual", ApiKeys.isConfigured(perenualKey),
+                        "plantnet", ApiKeys.isConfigured(plantnetKey)));
     }
 }
