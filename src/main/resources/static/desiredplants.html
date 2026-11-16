@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="author" content="James Woodward-Caradonna">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Wishlist | PlantOrganizer</title>
+        <link rel="stylesheet" type="text/css" href="CSS/index.css" />
+        <link rel="stylesheet" type="text/css" href="CSS/app.css" />
+    </head>
+
+    <body>
+        <div id="site-header"></div>
+
+        <main class="page">
+            <section class="page-intro">
+                <h2>&#11088; Wishlist</h2>
+                <p>Plants you'd like to buy or learn more about. Pick where you'd put each one and the agent tells you whether that's a good spot.</p>
+            </section>
+
+            <details class="panel">
+                <summary><strong>&#10133; Add a plant to your wishlist</strong></summary>
+                <form class="form-grid" id="addForm" style="margin-top:12px">
+                    <label>Scientific name *<input type="text" id="addScientific" required placeholder="e.g. Ficus lyrata" /></label>
+                    <label>Common name<input type="text" id="addCommon" placeholder="e.g. Fiddle-leaf fig" /></label>
+                    <label>Where would it go?<select id="addSpace"></select></label>
+                    <label>Note<input type="text" id="addNote" placeholder="optional" /></label>
+                    <button type="submit" class="primary-btn" id="addBtn">Add</button>
+                </form>
+                <p class="hint">Recommendations and the Plant Identifier can also add plants here.</p>
+            </details>
+
+            <div class="status" id="status"><span class="spinner"></span><span>Loading...</span></div>
+            <p class="muted" id="emptyState" hidden>Your wishlist is empty.</p>
+            <div class="card-grid" id="wishGrid"></div>
+        </main>
+
+        <script src="JS/api.js"></script>
+        <script src="JS/header.js"></script>
+        <script src="JS/chat.js"></script>
+        <script src="JS/desiredplants.js"></script>
+    </body>
+</html>

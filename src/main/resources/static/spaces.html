@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="author" content="James Woodward-Caradonna">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Plant Spaces | PlantOrganizer</title>
+        <link rel="stylesheet" type="text/css" href="CSS/index.css" />
+        <link rel="stylesheet" type="text/css" href="CSS/app.css" />
+        <link rel="stylesheet" type="text/css" href="CSS/spaces.css" />
+    </head>
+
+    <body>
+        <div id="site-header"></div>
+
+        <main class="page">
+            <section class="page-intro">
+                <h2>&#127968; Room Builder</h2>
+                <p>Build your home as rooms (which can hold other rooms, like a shelf in a bedroom) and spots where plants sit. Select any space to see every plant inside it.</p>
+            </section>
+
+            <div class="builder">
+                <aside class="panel tree-panel">
+                    <h3>Your spaces</h3>
+                    <ul class="tree" id="tree"></ul>
+                    <p class="muted" id="treeEmpty" hidden>No spaces yet. Start with your home or a room.</p>
+                    <h4>Add a space</h4>
+                    <form class="stack" id="createForm">
+                        <input type="text" id="newName" placeholder="Name, e.g. Living room or Window sill" required />
+                        <select id="newKind">
+                            <option value="room">Room / area (can contain spaces)</option>
+                            <option value="spot">Spot (where plants sit)</option>
+                        </select>
+                        <select id="newParent"></select>
+                        <select id="newLight"></select>
+                        <button type="submit" class="primary-btn" id="createBtn">Add space</button>
+                    </form>
+                </aside>
+
+                <section class="panel detail-panel" id="detail">
+                    <p class="muted">Select a space on the left.</p>
+                </section>
+            </div>
+        </main>
+
+        <script src="JS/api.js"></script>
+        <script src="JS/header.js"></script>
+        <script src="JS/chat.js"></script>
+        <script src="JS/spaces.js"></script>
+    </body>
+</html>

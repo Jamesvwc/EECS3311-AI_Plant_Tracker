@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="author" content="James Woodward-Caradonna">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>My Profile | PlantOrganizer</title>
+        <link rel="stylesheet" type="text/css" href="CSS/index.css" />
+        <link rel="stylesheet" type="text/css" href="CSS/app.css" />
+    </head>
+
+    <body>
+        <div id="site-header"></div>
+
+        <main class="page">
+            <section class="page-intro">
+                <h2>&#128100; My Profile</h2>
+                <p>PlantOrganizer has no login yet, so you choose which user this browser acts as.</p>
+            </section>
+
+            <section class="panel">
+                <h3>Current user</h3>
+                <p id="currentUser" class="hint"></p>
+                <form class="panel-row" id="switchForm">
+                    <select id="userSelect"></select>
+                    <button type="submit" class="primary-btn">Switch</button>
+                </form>
+                <h4>Create a user</h4>
+                <form class="panel-row" id="createForm">
+                    <input type="text" id="newUserName" placeholder="Name, e.g. My sister" required />
+                    <button type="submit" class="secondary-btn">Create and switch</button>
+                </form>
+                <p class="hint">Use a second user to try friends and sharing: create one, add each other as friends, and allow viewing.</p>
+            </section>
+
+            <section class="panel">
+                <h3>Reminders</h3>
+                <p class="hint">Turn watering reminders on or off for all your plants. You can still change them per plant in My Plants.</p>
+                <div class="panel-row">
+                    <button type="button" class="secondary-btn" id="allOn">Turn all on</button>
+                    <button type="button" class="secondary-btn" id="allOff">Turn all off</button>
+                </div>
+            </section>
+        </main>
+
+        <script src="JS/api.js"></script>
+        <script src="JS/header.js"></script>
+        <script src="JS/chat.js"></script>
+        <script>
+            (async function () {
+                const { el, api } = PO;
+                const users = await api('/api/users');
+                const me = users.find((u) => String(u.id) === PO.userId()) || users[0];
+                el('currentUser').textContent = `Acting as ${me.displayName} (user #${me.id}).`;
+                users.forEach((u) => {
+                    const o = new Option(`${u.displayName} (#${u.id})`, u.id);
+                    o.selected = u.id === me.id;
+                    el('userSelect').appendChild(o);
+                });
+                el('switchForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    PO.setUserId(el('userSelect').value);
+                    location.reload();
+                });
+                el('createForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const u = await PO.busy(null, () => api('/api/users', { method: 'POST', json: { displayName: el('newUserName').value } }));
+                    if (u) {
+                        PO.setUserId(u.id);
+                        location.reload();
+                    }
+                });
+                const setAll = (on) => PO.busy(null, async () => {
+                    const plants = await api('/api/plants');
+                    for (const p of plants) {
+                        await api(`/api/plants/${p.id}/notifications`, { method: 'PUT', json: { enabled: on } });
+                    }
+                    await api('/api/notifications/default', { method: 'POST', json: { enabled: on, plantId: null } });
+                    if (on && 'Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+                    PO.toast(`Reminders ${on ? 'on' : 'off'} for ${plants.length} plant(s).`);
+                });
+                el('allOn').addEventListener('click', () => setAll(true));
+                el('allOff').addEventListener('click', () => setAll(false));
+            })().catch((err) => PO.toast(err.message, 'error'));
+        </script>
+    </body>
+</html>

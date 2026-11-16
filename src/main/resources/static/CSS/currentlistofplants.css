@@ -1,87 +1,94 @@
-body {
-    margin: 0;
-    background-color: #E5FFE0;
+/* My Plants page (F08). Shared components are in app.css. */
+
+.plant-card .card-body .meta {
+    font-size: 0.85rem;
+    color: #4a6e4a;
 }
 
-header {
-    background-color: #c2ccc1;
-    padding: 15px;
-    /* margin: 15px; */
+.plant-card.status-card-due {
+    border-color: #b26a00;
+}
+
+.plant-card.status-card-overdue {
+    border-color: #b3261e;
+    box-shadow: 0 0 0 2px rgba(179, 38, 30, .25);
+}
+
+.plant-head {
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    /* position: relative; */
+    gap: 18px;
+    align-items: center;
 }
 
-#homepageLink {
-    cursor: pointer;
-    text-decoration: none;
-    color: black;
+.plant-head img, .plant-head .img-placeholder {
+    width: 110px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 12px;
+    background: #d4f7cc;
+    flex-shrink: 0;
 }
 
-header h1 {
+.plant-head h2 {
     margin: 0;
-    font-size: 24px;
 }
 
-header nav {
-    margin-top: auto;
-    margin-bottom: auto;
+.span-all {
+    grid-column: 1 / -1;
+}
+
+.note-list {
+    list-style: none;
+    padding: 0;
+}
+
+.note-list li {
+    background: #fff;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    white-space: pre-wrap;
+}
+
+.note-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #5b745b;
+    margin-bottom: 4px;
+}
+
+.health-report {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin: 14px 0;
+}
+
+.history-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: #fff;
+    border-radius: 10px;
     padding: 10px;
+    margin-bottom: 8px;
 }
 
-header nav a {
-    margin-right: 10px;
-    height: max-content;
+.history-item img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 8px;
 }
 
-header nav a:hover {
-    cursor: pointer;
-    text-decoration: none;
+.history-item p {
+    margin: 2px 0;
 }
 
-/* Dropdown */
-
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.dropdown-toggle {
-    padding: 10px;
-    cursor: pointer;
-}
-
-.dropdown-menu {
-    display: none;
-    position: absolute;
-    top: calc(100% + 7px);
-    background-color: #B9FFAD;
-    border: 1px solid #a0e898; /* #a0e898 */
-    border-radius: 10px;
-    z-index: 100;
-    border-radius: 10px;
-    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
-}
-
-.dropdown-menu a {
-    display: block;
-    padding: 8px 12px;
-    text-decoration: none;
-    color: black;
-    white-space: nowrap;
-    margin-right: 0;
-}
-
-.dropdown-menu a:hover {
-    background-color: #a0e898;
-    border-radius: 10px;
-}
-
-.dropdown-one:hover .dropdown-menu-one {
-    display: block;
-}
-
-.dropdown-two:hover .dropdown-menu-two {
-    display: block;
+@media (max-width: 600px) {
+    .plant-head {
+        flex-direction: column;
+        text-align: center;
+    }
 }

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="author" content="James Woodward-Caradonna">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Friends &amp; Sharing | PlantOrganizer</title>
+        <link rel="stylesheet" type="text/css" href="CSS/index.css" />
+        <link rel="stylesheet" type="text/css" href="CSS/app.css" />
+    </head>
+
+    <body>
+        <div id="site-header"></div>
+
+        <main class="page">
+            <section class="page-intro">
+                <h2>&#129309; Friends &amp; Sharing</h2>
+                <p>See which plants your friends grow, and share care instructions with anyone, even people without an account.</p>
+            </section>
+
+            <section class="panel">
+                <h3>Friends</h3>
+                <p class="hint">Friends only see your plant names, and only if you allow it. Health and watering details stay private.</p>
+                <form class="panel-row" id="addFriendForm">
+                    <select id="friendSelect"></select>
+                    <button type="submit" class="primary-btn" id="addFriendBtn">Add friend</button>
+                    <a href="profile.html" class="hint">Need another user? Create one on your profile.</a>
+                </form>
+                <div id="friendList" style="margin-top:14px"></div>
+                <div id="friendPlants"></div>
+            </section>
+
+            <section class="panel">
+                <h3>&#128279; Share watering instructions</h3>
+                <p class="hint">Going away? Pick plants and send the link to whoever is looking after them. They see watering and sunlight needs and the next watering dates, nothing else. Links expire after 30 days.</p>
+                <form id="shareForm">
+                    <div id="sharePlants" class="check-list"></div>
+                    <div class="panel-row" style="margin-top:10px">
+                        <input type="text" id="shareLabel" placeholder="Label, e.g. While I'm in Montreal" style="flex:1" />
+                        <button type="submit" class="primary-btn" id="shareBtn">Create link</button>
+                    </div>
+                </form>
+                <h4>Your links</h4>
+                <div id="linkList"></div>
+            </section>
+        </main>
+
+        <script src="JS/api.js"></script>
+        <script src="JS/header.js"></script>
+        <script src="JS/chat.js"></script>
+        <script src="JS/friends.js"></script>
+    </body>
+</html>

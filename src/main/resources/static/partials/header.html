@@ -6,7 +6,7 @@
     </h1>
 
     <nav>
-        <a href="#">
+        <a href="calendar.html">
             Calendar
         </a>
         <div class="dropdown dropdown-one">
@@ -14,26 +14,31 @@
                 My Plants ▾
             </a>
             <div class="dropdown-menu dropdown-menu-one">
-                <a href="recommendedplants.html">Recommendations</a>
                 <a href="currentlistofplants.html">Current Plants</a>
-                <a href="#">Plant Spaces</a>
+                <a href="recommendedplants.html">Recommendations</a>
+                <a href="desiredplants.html">Wishlist</a>
+                <a href="spaces.html">Plant Spaces</a>
             </div>
         </div>
 
-        <a href="#">
+        <a href="plantidentifier.html">
             Plant Identification
         </a>
-        <a href="#">
+        <a href="chat.html">
             Chat
         </a>
         <div class="dropdown dropdown-two">
-            <a class="dropdown-toggle">
+            <a class="dropdown-toggle" id="userChip">
                 Account ▾
             </a>
             <div class="dropdown-menu dropdown-menu-two">
-                <a href="#">My Profile</a>
-                <a href="#">Settings</a>
+                <a href="profile.html">My Profile</a>
+                <a href="friends.html">Friends &amp; Sharing</a>
             </div>
         </div>
+        <span class="bell-wrap">
+            <button type="button" class="bell" id="bellBtn" aria-label="Watering reminders">&#128276;<span class="bell-count" id="bellCount" hidden>0</span></button>
+            <div class="bell-panel" id="bellPanel" hidden></div>
+        </span>
     </nav>
 </header>

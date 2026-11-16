@@ -1,0 +1,168 @@
+/* Room Builder (F10). */
+
+.builder {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.tree, .tree ul {
+    list-style: none;
+    margin: 0;
+    padding-left: 14px;
+}
+
+.tree {
+    padding-left: 0;
+}
+
+.tree button {
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    width: 100%;
+    font: inherit;
+}
+
+.tree button:hover {
+    background: #d4f7cc;
+}
+
+.tree button.selected {
+    background: #2e7d32;
+    color: #fff;
+}
+
+.count {
+    font-size: 0.75rem;
+    opacity: 0.75;
+}
+
+.stack {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.floor {
+    position: relative;
+    height: 380px;
+    background: repeating-linear-gradient(0deg, #f7fff5, #f7fff5 23px, #e6f4e2 24px),
+                repeating-linear-gradient(90deg, transparent, transparent 23px, #e6f4e2 24px);
+    border: 2px solid #2e5e2e;
+    border-radius: 12px;
+    margin: 12px 0;
+    overflow: hidden;
+    touch-action: none;
+}
+
+.node {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border: 2px solid #7bbf73;
+    border-radius: 10px;
+    padding: 6px 8px;
+    min-width: 90px;
+    max-width: 180px;
+    cursor: grab;
+    user-select: none;
+    font-size: 0.8rem;
+    box-shadow: 1px 1px 0 rgba(0, 0, 0, .3);
+}
+
+.node.room {
+    border-style: dashed;
+    background: #eefbe9;
+}
+
+.node:active {
+    cursor: grabbing;
+}
+
+.node-title {
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.node .zoom {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.dot-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 4px;
+}
+
+.dot {
+    font-size: 0.72rem;
+    border-radius: 10px;
+    padding: 1px 6px;
+    color: #fff;
+    background: #2e7d32;
+    white-space: nowrap;
+}
+
+.dot.due {
+    background: #b26a00;
+}
+
+.dot.overdue {
+    background: #b3261e;
+}
+
+.dot.attention::after {
+    content: " \1FA7A";
+}
+
+.breadcrumbs {
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+}
+
+.breadcrumbs button {
+    background: none;
+    border: none;
+    color: #2e7d32;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    font: inherit;
+}
+
+.plant-rows {
+    list-style: none;
+    padding: 0;
+}
+
+.plant-rows li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border-radius: 8px;
+    padding: 6px 10px;
+    margin-bottom: 6px;
+}
+
+@media (max-width: 760px) {
+    .builder {
+        grid-template-columns: 1fr;
+    }
+
+    .floor {
+        height: 300px;
+    }
+}

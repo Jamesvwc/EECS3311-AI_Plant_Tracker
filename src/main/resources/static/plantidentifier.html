@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="author" content="James Woodward-Caradonna">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Plant Identification | PlantOrganizer</title>
+        <link rel="stylesheet" type="text/css" href="CSS/index.css" />
+        <link rel="stylesheet" type="text/css" href="CSS/app.css" />
+        <link rel="stylesheet" type="text/css" href="CSS/plantidentifier.css" />
+    </head>
+
+    <body>
+        <div id="site-header"></div>
+
+        <main class="page">
+            <section class="page-intro">
+                <h2>&#128269; Plant Identifier</h2>
+                <p>Upload a photo of a plant (or describe it) and we'll tell you what it is, how to care for it, and where it will thrive.</p>
+            </section>
+
+            <!-- Step 1: upload -->
+            <section class="panel" id="uploadPanel">
+                <input type="file" id="photoInput" accept="image/jpeg,image/png" multiple hidden />
+                <button type="button" class="primary-btn" id="uploadBtn">&#128247; Upload Photo</button>
+                <p class="hint">JPEG or PNG, up to 5 photos of the same plant. Clear close-ups of leaves or flowers work best.</p>
+                <div class="thumbs" id="thumbs"></div>
+                <form class="describe-row" id="describeForm">
+                    <input type="text" id="describeInput" placeholder="No photo? Describe it: e.g. big glossy leaves with holes, climbing stems" aria-label="Describe the plant" />
+                    <button type="submit" class="secondary-btn" id="describeBtn">Identify from description</button>
+                </form>
+            </section>
+
+            <!-- Status / errors -->
+            <div class="status" id="status" hidden>
+                <span class="spinner" aria-hidden="true"></span>
+                <span id="statusText">Working...</span>
+            </div>
+            <div class="error-box" id="errorBox" role="alert" hidden>
+                <p id="errorText"></p>
+                <button type="button" class="secondary-btn" id="retryBtn">Try again</button>
+            </div>
+
+            <!-- Step 2-4: candidates -->
+            <section class="panel" id="candidatesPanel" hidden>
+                <h3>Which one looks like your plant?</h3>
+                <p class="hint" id="candidatesHint"></p>
+                <div class="candidates" id="candidates"></div>
+                <div class="no-match">
+                    <p>None of these look right? More photos (another angle, a leaf, a flower) help the identifier.</p>
+                    <button type="button" class="secondary-btn" id="addPhotosBtn">&#10133; Add more photos</button>
+                    <button type="button" class="link-btn" id="startOverBtn">Start over</button>
+                </div>
+            </section>
+
+            <!-- Step 5-6: care report -->
+            <section class="panel" id="reportPanel" hidden>
+                <div class="report-header">
+                    <img id="reportImage" alt="" hidden />
+                    <div>
+                        <h3 id="reportTitle"></h3>
+                        <p class="scientific" id="reportScientific"></p>
+                        <span class="badge" id="reportSource"></span>
+                    </div>
+                </div>
+
+                <div class="similar-warning" id="similarWarning" hidden></div>
+
+                <dl class="facts" id="reportFacts"></dl>
+
+                <p class="description" id="reportDescription"></p>
+
+                <h4 id="explanationHeading">&#129302; How to care for it</h4>
+                <div class="explanation" id="reportExplanation"></div>
+
+                <details class="notes" id="reportNotesWrap" hidden>
+                    <summary>How this information was found</summary>
+                    <ul id="reportNotes"></ul>
+                </details>
+
+                <div class="own-panel" id="ownPanel">
+                    <h4>Is this your plant?</h4>
+                    <div class="form-grid">
+                        <label>Nickname (optional)
+                            <input type="text" id="ownNickname" placeholder="e.g. Monty" />
+                        </label>
+                        <label>Where is it? (optional)
+                            <select id="ownSpace"><option value="">Not placed yet</option></select>
+                        </label>
+                    </div>
+                    <div class="panel-row" style="margin-top:12px">
+                        <button type="button" class="primary-btn" id="ownBtn">&#127793; I own this plant</button>
+                        <button type="button" class="secondary-btn" id="wishBtn">&#11088; Add to wishlist</button>
+                    </div>
+                    <p class="hint">Owning it adds it to My Plants with these care notes and the agent plans its watering schedule.</p>
+                    <div id="ownResult" hidden></div>
+                </div>
+
+                <div class="report-actions">
+                    <button type="button" class="secondary-btn" id="backToCandidatesBtn">&#8592; Back to matches</button>
+                    <button type="button" class="primary-btn" id="identifyAnotherBtn">Identify another plant</button>
+                </div>
+            </section>
+        </main>
+
+        <script src="JS/api.js"></script>
+        <script src="JS/header.js"></script>
+        <script src="JS/chat.js"></script>
+        <script src="JS/plantidentifier.js"></script>
+    </body>
+</html>

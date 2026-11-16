@@ -6,11 +6,56 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Recommendations | PlantOrganizer</title>
         <link rel="stylesheet" type="text/css" href="CSS/index.css" />
+        <link rel="stylesheet" type="text/css" href="CSS/app.css" />
+        <link rel="stylesheet" type="text/css" href="CSS/recommendedplants.css" />
     </head>
 
     <body>
         <div id="site-header"></div>
 
+        <main class="page">
+            <section class="page-intro">
+                <h2>&#10024; Recommended Plants</h2>
+                <p>Plants the agent thinks you'll like, based on what you own, your spaces and how often you can water. Remove the ones you don't like and it learns.</p>
+            </section>
+
+            <section class="panel">
+                <h3>&#128172; Looking for something specific?</h3>
+                <p class="hint">Describe it and the agent finds plants that meet every constraint. Keep the ones you like.</p>
+                <form class="panel-row" id="requestForm">
+                    <input type="text" id="requestText" style="flex:1" placeholder="e.g. low maintenance, safe for cats, for my dim bedroom" />
+                    <button type="submit" class="primary-btn" id="requestBtn">Find plants</button>
+                </form>
+                <div id="requestResult"></div>
+            </section>
+
+            <section class="panel">
+                <div class="panel-row list-head">
+                    <h3>Your recommendations</h3>
+                    <label>Sort by
+                        <select id="sortSelect">
+                            <option value="CARE">Ease of care</option>
+                            <option value="NAME">Name</option>
+                            <option value="SPACE">Recommended space</option>
+                        </select>
+                    </label>
+                    <button type="button" class="secondary-btn" id="refreshBtn">&#8635; Refresh</button>
+                </div>
+                <p class="hint" id="listMessage"></p>
+                <div class="status" id="status"><span class="spinner"></span><span>Loading recommendations (the agent may be refreshing them)...</span></div>
+                <div class="card-grid" id="recGrid"></div>
+            </section>
+
+            <details class="panel">
+                <summary><strong>&#129504; What the agent has learned about you</strong></summary>
+                <p class="hint">Likes come from plants you own or keep, dislikes from plants you remove, and notes from things you tell the agent in chat. Forget anything that's wrong.</p>
+                <ul class="pref-list" id="prefList"></ul>
+            </details>
+        </main>
+
+        <script src="JS/api.js"></script>
         <script src="JS/header.js"></script>
+        <script src="JS/chat.js"></script>
+        <script src="JS/recommendedplants.js"></script>
     </body>
 </html>

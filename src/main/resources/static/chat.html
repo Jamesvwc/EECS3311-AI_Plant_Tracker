@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="author" content="James Woodward-Caradonna">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Chat | PlantOrganizer</title>
+        <link rel="stylesheet" type="text/css" href="CSS/index.css" />
+        <link rel="stylesheet" type="text/css" href="CSS/app.css" />
+    </head>
+
+    <body>
+        <div id="site-header"></div>
+
+        <main class="page">
+            <section class="page-intro">
+                <h2>&#129302; Chat with your plant agent</h2>
+                <p>The agent can identify plants, add them to your collection, check their health, plan watering around your week, recommend plants and answer questions. Attach a photo with &#128247;.</p>
+            </section>
+            <div id="chatPage"></div>
+        </main>
+
+        <script src="JS/api.js"></script>
+        <script src="JS/header.js"></script>
+        <script src="JS/chat.js"></script>
+        <script>PoChat.initFullPage(document.getElementById('chatPage'));</script>
+    </body>
+</html>

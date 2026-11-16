@@ -6,6 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Home | PlantOrganizer</title>
         <link rel="stylesheet" type="text/css" href="CSS/index.css" />
+        <link rel="stylesheet" type="text/css" href="CSS/app.css" />
     </head>
 
     <body>
@@ -22,34 +23,40 @@
 
             <!-- Feature Cards -->
             <section class="features">
-                <a href="#" class="feature-card">
+                <a href="calendar.html" class="feature-card">
                     <span class="feature-icon">&#128200;</span>
                     <h3>My Calendar</h3>
-                    <p>Description for Recommendations</p>
+                    <p>Watering schedules planned by the agent, fitted around when you're free, with reminders.</p>
                 </a>
 
                 <a href="#" class="feature-card" id="myPlantsCard">
                     <span class="feature-icon">&#127803;</span>
                     <h3>My Plants</h3>
-                    <p>Description for My Plants (splits into owned and recommended plants, and spaces)</p>
+                    <p>Your plants with care notes and health history, recommendations, your wishlist, and your spaces.</p>
                 </a>
 
-                <a href="#" class="feature-card">
+                <a href="plantidentifier.html" class="feature-card">
                     <span class="feature-icon">&#128269;</span>
                     <h3>Plant Identification/Health Analysis</h3>
-                    <p>Description for Plant Identification/Health Analysis</p>
+                    <p>Upload a photo to identify a plant and learn how to care for it.</p>
                 </a>
 
-                <a href="#" class="feature-card">
-                    <span class="feature-icon">&#128269;</span>
+                <a href="friends.html" class="feature-card">
+                    <span class="feature-icon">&#129309;</span>
                     <h3>Friends</h3>
-                    <p>Description for Friends</p>
+                    <p>See which plants your friends grow, if they allow it.</p>
                 </a>
 
-                <a href="#" class="feature-card">
-                    <span class="feature-icon">&#128269;</span>
+                <a href="friends.html#shareForm" class="feature-card">
+                    <span class="feature-icon">&#128279;</span>
                     <h3>Share Plant Watering Schedule</h3>
-                    <p>Description for Share Plant Watering Schedule</p>
+                    <p>Send a plant sitter a link with watering and sunlight needs. No account needed.</p>
+                </a>
+
+                <a href="chat.html" class="feature-card">
+                    <span class="feature-icon">&#129302;</span>
+                    <h3>Chat with the Agent</h3>
+                    <p>Ask anything, send a photo, or tell the agent what you need. It's also in the corner of every page.</p>
                 </a>
             </section>
         </main>
@@ -57,26 +64,18 @@
         <dialog id="myPlantsDialog">
             <button class="dialog-close" id="myPlantsClose" aria-label="Close">&times;</button>
             <h2>&#127803; My Plants</h2>
-            <p>Explore your owned plants, browse recommended plamts, and organize your personal spaces!</p>
+            <p>Explore your owned plants, browse recommended plants, and organize your personal spaces!</p>
             <ul>
                 <li><a href="currentlistofplants.html">Current Plants</a></li>
                 <li><a href="recommendedplants.html">Recommendations</a></li>
-                <li><a href="#">Plant Spaces</a></li>
+                <li><a href="desiredplants.html">Wishlist</a></li>
+                <li><a href="spaces.html">Plant Spaces</a></li>
             </ul>
         </dialog>
 
-        <button class="chat-launcher" id="launcher" aria-label="Open chat">+</button>
-
-        <div class="chat-box" id="chatBox">
-            <div class="chat-header">Chat with us</div>
-            <div class="chat-messages" id="messages"></div>
-            <div class="chat-input">
-                <input id="msgInput" placeholder="Type a message..." />
-                <button id="sendBtn">Send</button>
-            </div>
-        </div>
-
+        <script src="JS/api.js"></script>
         <script src="JS/header.js"></script>
+        <script src="JS/chat.js"></script>
         <script src="JS/index.js"></script>
 
     </body>

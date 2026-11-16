@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="author" content="James Woodward-Caradonna">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Calendar | PlantOrganizer</title>
+        <link rel="stylesheet" type="text/css" href="CSS/index.css" />
+        <link rel="stylesheet" type="text/css" href="CSS/app.css" />
+        <link rel="stylesheet" type="text/css" href="CSS/calendar.css" />
+    </head>
+
+    <body>
+        <div id="site-header"></div>
+
+        <main class="page">
+            <section class="page-intro">
+                <h2>&#128197; Watering Calendar</h2>
+                <p>The agent plans waterings for each plant and groups plants together where it can. Tell it when you're free and it fits the plan around you.</p>
+            </section>
+
+            <section class="panel" id="overviewPanel">
+                <h3>&#128167; Watering check-in</h3>
+                <p class="hint">Mark what you've watered. Missed waterings stay here until you water them.</p>
+                <div class="overview" id="overview"></div>
+            </section>
+
+            <section class="panel">
+                <h3>&#128337; When are you free?</h3>
+                <p class="hint">Type it, upload a photo of your timetable, or upload a calendar export (.ics). The agent reschedules every plant around it. You can undo.</p>
+                <p class="muted" id="currentAvailability"></p>
+                <form id="availabilityForm">
+                    <textarea id="availabilityText" placeholder="e.g. I work 9-5 on weekdays and need 30 minutes to get home. Free on weekends. Away Dec 20-27."></textarea>
+                    <div class="panel-row" style="margin-top:8px">
+                        <label class="file-label">or a file: <input type="file" id="availabilityFile" accept="image/jpeg,image/png,.ics,text/calendar" /></label>
+                        <button type="submit" class="primary-btn" id="availabilityBtn">Update my schedule</button>
+                        <button type="button" class="secondary-btn" id="undoBtn">&#8630; Undo last change</button>
+                    </div>
+                </form>
+                <div id="availabilityResult"></div>
+            </section>
+
+            <section class="panel">
+                <div class="month-nav">
+                    <button type="button" class="secondary-btn" id="prevMonth" aria-label="Previous month">&#8592;</button>
+                    <h3 id="monthTitle"></h3>
+                    <button type="button" class="secondary-btn" id="nextMonth" aria-label="Next month">&#8594;</button>
+                </div>
+                <p class="hint"><span class="legend grouped"></span> grouped with other plants &nbsp; <span class="legend done"></span> watered</p>
+                <div class="month" id="month"></div>
+            </section>
+        </main>
+
+        <script src="JS/api.js"></script>
+        <script src="JS/header.js"></script>
+        <script src="JS/chat.js"></script>
+        <script src="JS/calendar.js"></script>
+    </body>
+</html>

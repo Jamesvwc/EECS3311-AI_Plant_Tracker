@@ -6,11 +6,119 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Current Plants | PlantOrganizer</title>
         <link rel="stylesheet" type="text/css" href="CSS/index.css" />
+        <link rel="stylesheet" type="text/css" href="CSS/app.css" />
+        <link rel="stylesheet" type="text/css" href="CSS/currentlistofplants.css" />
     </head>
 
     <body>
         <div id="site-header"></div>
 
+        <main class="page">
+            <section class="page-intro">
+                <h2>&#127793; My Plants</h2>
+                <p>Every plant you own, with its care notes, watering status, health history and where it lives.</p>
+            </section>
+
+            <details class="panel" id="addPanel">
+                <summary><strong>&#10133; Add a plant manually</strong></summary>
+                <p class="hint">Know the name? Add it here. Don't know it? <a href="plantidentifier.html">Identify it from a photo</a> first.</p>
+                <form class="form-grid" id="addForm">
+                    <label>Scientific name *<input type="text" id="addScientific" required placeholder="e.g. Sansevieria trifasciata" /></label>
+                    <label>Common name<input type="text" id="addCommon" placeholder="e.g. Snake plant" /></label>
+                    <label>Nickname<input type="text" id="addNickname" placeholder="optional" /></label>
+                    <label>Where is it?<select id="addSpace"></select></label>
+                    <button type="submit" class="primary-btn" id="addBtn">Add plant</button>
+                </form>
+                <div id="addResult"></div>
+            </details>
+
+            <div class="status" id="status"><span class="spinner"></span><span>Loading your plants...</span></div>
+            <p class="muted" id="emptyState" hidden>No plants yet. Identify one or add it above, and the agent will plan its watering.</p>
+            <div class="card-grid" id="plantGrid"></div>
+        </main>
+
+        <dialog class="wide" id="plantDialog">
+            <button class="dialog-close" id="dialogClose" aria-label="Close">&times;</button>
+            <div class="plant-head">
+                <div id="dlgImage"></div>
+                <div>
+                    <h2 id="dlgName"></h2>
+                    <p class="scientific" id="dlgScientific"></p>
+                    <div class="panel-row" id="dlgBadges"></div>
+                </div>
+            </div>
+            <nav class="tabs" role="tablist">
+                <button type="button" data-tab="care" class="active">Care notes</button>
+                <button type="button" data-tab="notes">Notes</button>
+                <button type="button" data-tab="health">Health</button>
+                <button type="button" data-tab="schedule">Schedule &amp; location</button>
+            </nav>
+
+            <section data-panel="care">
+                <p class="hint" id="careSource"></p>
+                <form class="form-grid" id="careForm">
+                    <label>Nickname<input type="text" name="nickname" /></label>
+                    <label>Watering<input type="text" name="watering" placeholder="e.g. Average" /></label>
+                    <label>Watering frequency<input type="text" name="wateringFrequency" placeholder="e.g. every 7-10 days" /></label>
+                    <label>Sunlight (comma separated)<input type="text" name="sunlight" placeholder="e.g. part shade, bright indirect" /></label>
+                    <label>Care level<input type="text" name="careLevel" /></label>
+                    <label>Growth rate<input type="text" name="growthRate" /></label>
+                    <label>Indoor plant<select name="indoor"><option value="">Unknown</option><option value="true">Yes</option><option value="false">No</option></select></label>
+                    <label>Toxic to pets<select name="poisonousToPets"><option value="">Unknown</option><option value="true">Yes</option><option value="false">No</option></select></label>
+                    <label>Toxic to humans<select name="poisonousToHumans"><option value="">Unknown</option><option value="true">Yes</option><option value="false">No</option></select></label>
+                    <label>Hardiness<input type="text" name="hardinessZones" /></label>
+                    <label>Family<input type="text" name="family" /></label>
+                    <label class="span-all">Description<textarea name="description"></textarea></label>
+                    <button type="submit" class="primary-btn">Save care notes</button>
+                </form>
+                <p class="hint">Fields the agent couldn't find are left empty for you to fill in.</p>
+            </section>
+
+            <section data-panel="notes" hidden>
+                <form id="noteForm">
+                    <textarea id="noteText" placeholder="Anything you've noticed: new leaves, pests, repotting, moved rooms..."></textarea>
+                    <button type="submit" class="primary-btn" style="margin-top:8px">Add note</button>
+                </form>
+                <ul class="note-list" id="noteList"></ul>
+            </section>
+
+            <section data-panel="health" hidden>
+                <form id="healthForm">
+                    <p class="hint">Describe what you see and/or add a photo. The agent compares it with earlier checks.</p>
+                    <textarea id="healthText" placeholder="e.g. lower leaves turning yellow, soil stays wet for days"></textarea>
+                    <div class="panel-row" style="margin-top:8px">
+                        <input type="file" id="healthPhoto" accept="image/jpeg,image/png" />
+                        <button type="submit" class="primary-btn" id="healthBtn">&#129658; Check health</button>
+                    </div>
+                </form>
+                <div id="healthResult"></div>
+                <h4>Health history</h4>
+                <div id="healthHistory"></div>
+            </section>
+
+            <section data-panel="schedule" hidden>
+                <dl class="facts" id="scheduleFacts"></dl>
+                <div class="panel-row">
+                    <button type="button" class="secondary-btn" id="waterBtn">&#128167; Mark as watered</button>
+                    <button type="button" class="secondary-btn" id="regenBtn">&#128197; Re-plan schedule</button>
+                    <button type="button" class="secondary-btn" id="researchBtn" hidden>&#128270; Search for more watering info</button>
+                    <label class="toggle"><input type="checkbox" id="notifyToggle" /> Watering reminders</label>
+                </div>
+                <div id="scheduleResult"></div>
+                <h4>Location</h4>
+                <div class="panel-row">
+                    <select id="spaceSelect"></select>
+                    <button type="button" class="secondary-btn" id="placeBtn">Move here</button>
+                    <a href="spaces.html">Open Room Builder</a>
+                </div>
+                <h4>Remove</h4>
+                <button type="button" class="danger-btn" id="deleteBtn">Delete this plant</button>
+            </section>
+        </dialog>
+
+        <script src="JS/api.js"></script>
         <script src="JS/header.js"></script>
+        <script src="JS/chat.js"></script>
+        <script src="JS/currentlistofplants.js"></script>
     </body>
 </html>
