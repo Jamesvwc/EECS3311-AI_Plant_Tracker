@@ -24,3 +24,5 @@ HELP.md
 docs
 *.txt
 
+# demo videos
+*.mov
