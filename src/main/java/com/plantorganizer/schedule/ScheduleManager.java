@@ -208,12 +208,14 @@ public class ScheduleManager {
         Map<String, List<LocalDateTime>> planned = new LinkedHashMap<>();
         Map<String, Integer> intervals = new LinkedHashMap<>();
         List<EntrySpec> specs = new ArrayList<>();
+        List<String> warnings = new ArrayList<>();
         for (OwnedPlant plant : plants) {
             WateringInterval interval = WateringInterval.from(plant.getCare());
             SchedulePlan plan = choosePlan(context(plant, interval, planned, intervals, availability, now));
             String key = uniqueKey(planned, plant.getDisplayName());
             planned.put(key, plan.times());
             intervals.put(key, plan.intervalDays());
+            unmetNeed(plant.getDisplayName(), plan, now).ifPresent(warnings::add);
             plant.setWateringInterval(plan.intervalDays(), interval.quality());
             plantRepository.save(plant);
             plan.times().forEach(t -> specs.add(new EntrySpec(userId, plant.getId(), t, plan.grouped())));
@@ -223,7 +225,32 @@ public class ScheduleManager {
                     "Rescheduled " + specs.size() + " waterings to fit your availability", before, specs));
         }
         return new RescheduleResult(availability, plants.size(), before.size(), specs.size(),
-                examples(plants, before, specs), null);
+                examples(plants, before, specs), warnings, null);
+    }
+
+    /**
+     * Whether the availability leaves this plant without water for too long:
+     * fitting waterings to free time may move each one a few days, so a gap is
+     * only reported when it exceeds the interval by half (at least 2 days).
+     * Package-private for tests.
+     */
+    static Optional<String> unmetNeed(String plantName, SchedulePlan plan, LocalDateTime now) {
+        int interval = plan.intervalDays();
+        if (interval <= 0 || plan.times().isEmpty()) {
+            return Optional.empty();
+        }
+        long allowed = interval + Math.max(2, (interval + 1) / 2);
+        long longest = 0;
+        LocalDateTime previous = now;
+        for (LocalDateTime time : plan.times()) {
+            long gap = java.time.Duration.between(previous, time).toHours() / 24;
+            longest = Math.max(longest, gap);
+            previous = time;
+        }
+        return longest > allowed
+                ? Optional.of(plantName + " needs water every " + interval + " days, but your availability leaves "
+                        + "gaps of up to " + longest + " days between waterings. Ask someone to water it, or add more free time.")
+                : Optional.empty();
     }
 
     private static List<String> examples(List<OwnedPlant> plants, List<CalendarEntry> before, List<EntrySpec> after) {

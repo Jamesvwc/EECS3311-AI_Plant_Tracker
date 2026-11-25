@@ -83,6 +83,8 @@ el('availabilityForm').addEventListener('submit', (e) => {
                 r.examples.forEach((x) => ul.appendChild(textEl('li', x)));
                 result.appendChild(ul);
             }
+            // Plants whose watering needs this availability can't fully meet
+            (r.warnings || []).forEach((w) => result.appendChild(textEl('p', w, 'notice')));
             el('availabilityText').value = '';
             el('availabilityFile').value = '';
             refreshAll();
