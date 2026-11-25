@@ -650,6 +650,38 @@ header nav {
     margin-top: 8px;
 }
 
+/* A change the agent proposed: nothing happens until Yes is pressed. */
+.msg-proposal {
+    border-color: #e6c36a;
+    border-left: 4px solid #d9a21b;
+    background: #fffdf4;
+}
+
+.chip-btn.approve {
+    background: #2e7d32;
+    color: #fff;
+    font-weight: 600;
+}
+
+.chip-btn.approve:hover:not(:disabled) {
+    background: #256628;
+}
+
+.chip-btn.decline {
+    border-color: #9aa79a;
+    color: #4d5c4d;
+}
+
+.chip-btn.decline:hover:not(:disabled) {
+    background: #eef2ee;
+}
+
+.chip-btn.decline.chosen {
+    background: #5f6b5f;
+    border-color: #5f6b5f;
+    color: #fff;
+}
+
 .thinking {
     display: flex;
     gap: 8px;

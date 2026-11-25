@@ -158,15 +158,37 @@ public class PerenualAdapter implements PlantInfoProvider {
                     .body(String.class);
         } catch (RestClientResponseException e) {
             int status = e.getStatusCode().value();
-            log.warn("Perenual returned HTTP {} for {}", status, path);
-            String reason = switch (status) {
-                case 401, 403 -> "rejected the API key. Check PERENUAL_API_KEY in .env.";
-                case 429 -> "daily request limit reached.";
-                default -> "returned HTTP " + status + ".";
-            };
-            throw new ExternalServiceException(SERVICE, reason, status >= 500, e);
+            String said = message(e.getResponseBodyAsString());
+            log.warn("Perenual returned HTTP {} for {}: {}", status, path, said);
+            throw new ExternalServiceException(SERVICE, reason(status, said), status >= 500, e);
         } catch (ResourceAccessException e) {
             throw new ExternalServiceException(SERVICE, "could not be reached (" + e.getMessage() + ")", true, e);
+        }
+    }
+
+    /**
+     * Why a request failed, in words. Perenual answers a missing, wrong or
+     * inactive key with HTTP 404 "Missing/Issue with API Key", not 401.
+     * Package-private for unit tests.
+     */
+    static String reason(int status, String said) {
+        String quoted = said == null ? "" : " (Perenual said: \"" + said + "\")";
+        if (status == 401 || status == 403 || (said != null && said.toLowerCase().contains("api key"))) {
+            return "rejected the API key" + quoted + ". Check PERENUAL_API_KEY in .env, and that the key "
+                    + "is active in your account on perenual.com.";
+        }
+        if (status == 429) {
+            return "daily request limit reached" + quoted + ". It resets tomorrow.";
+        }
+        return "returned HTTP " + status + quoted + ".";
+    }
+
+    /** The "message" in Perenual's JSON error body, or null. */
+    private String message(String body) {
+        try {
+            return JsonValues.text(jsonMapper.readTree(body).path("message"));
+        } catch (RuntimeException e) {
+            return null;
         }
     }
 

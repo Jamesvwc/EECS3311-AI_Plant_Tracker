@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Layout of target/Agent.jar (the terminal CLI). It holds only the
+	com.plantorganizer.cli classes and the libraries they use (picocli, JLine
+	and Jackson), so it starts quickly and never loads the Spring server.
+-->
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
+		  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		  xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 https://maven.apache.org/xsd/assembly-2.2.0.xsd">
+	<id>agent</id>
+	<formats>
+		<format>jar</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	<fileSets>
+		<fileSet>
+			<directory>${project.build.outputDirectory}</directory>
+			<outputDirectory>/</outputDirectory>
+			<includes>
+				<include>com/plantorganizer/cli/**</include>
+			</includes>
+		</fileSet>
+	</fileSets>
+	<dependencySets>
+		<dependencySet>
+			<outputDirectory>/</outputDirectory>
+			<useProjectArtifact>false</useProjectArtifact>
+			<unpack>true</unpack>
+			<scope>runtime</scope>
+			<includes>
+				<include>info.picocli:picocli</include>
+				<include>org.jline:jline-reader</include>
+				<include>org.jline:jline-terminal</include>
+				<include>org.jline:jline-terminal-jni</include>
+				<include>org.jline:jline-native</include>
+				<include>tools.jackson.core:jackson-core</include>
+				<include>tools.jackson.core:jackson-databind</include>
+				<include>com.fasterxml.jackson.core:jackson-annotations</include>
+			</includes>
+			<unpackOptions>
+				<excludes>
+					<exclude>**/module-info.class</exclude>
+					<exclude>META-INF/MANIFEST.MF</exclude>
+				</excludes>
+			</unpackOptions>
+		</dependencySet>
+	</dependencySets>
+</assembly>

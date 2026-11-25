@@ -28,6 +28,10 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<picocli.version>4.7.7</picocli.version>
+		<jline.version>3.30.17</jline.version>
+		<!-- The server's main class (Agent.jar has its own: com.plantorganizer.cli.AgentCli) -->
+		<start-class>com.plantorganizer.PlantOrganizerApplication</start-class>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -52,6 +56,27 @@
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+		<!-- Command parsing for the terminal CLI (Agent.jar, package com.plantorganizer.cli) -->
+		<dependency>
+			<groupId>info.picocli</groupId>
+			<artifactId>picocli</artifactId>
+			<version>${picocli.version}</version>
+		</dependency>
+		<!--
+			Line editing for the CLI's prompt: arrow keys, history saved between
+			sessions, tab completion. jline-terminal-jni lets JLine switch the
+			terminal into raw mode on macOS, Linux and Windows.
+		-->
+		<dependency>
+			<groupId>org.jline</groupId>
+			<artifactId>jline-reader</artifactId>
+			<version>${jline.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jline</groupId>
+			<artifactId>jline-terminal-jni</artifactId>
+			<version>${jline.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa-test</artifactId>
@@ -74,6 +99,41 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<!--
+				Builds target/Agent.jar, the terminal CLI: only the com.plantorganizer.cli
+				classes plus picocli, JLine and Jackson, no Spring. It talks to the running
+				server over its REST API. Run it with: java -jar target/Agent.jar
+			-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>agent-jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<finalName>Agent</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<attach>false</attach>
+							<descriptors>
+								<descriptor>src/assembly/agent-jar.xml</descriptor>
+							</descriptors>
+							<archive>
+								<manifest>
+									<mainClass>com.plantorganizer.cli.AgentCli</mainClass>
+								</manifest>
+								<manifestEntries>
+									<!-- JLine loads a small native library; this stops Java 24+ warning about it -->
+									<Enable-Native-Access>ALL-UNNAMED</Enable-Native-Access>
+								</manifestEntries>
+							</archive>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

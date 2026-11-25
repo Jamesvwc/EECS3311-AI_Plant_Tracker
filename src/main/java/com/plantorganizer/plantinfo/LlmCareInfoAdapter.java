@@ -36,6 +36,8 @@ public class LlmCareInfoAdapter implements PlantInfoProvider {
     private static final String INSTRUCTIONS = """
             You are a careful horticulture reference. You fill in plant-care templates as JSON.
             Only state facts you are confident about; leave out any optional field you do not know.
+            commonName is the everyday name people use for this exact species, never just the
+            name of its genus (e.g. not "chin cactus" for Gymnocalycium mihanovichii).
             If you do not have reliable knowledge of the exact species requested, set
             knownSpecies to false, put the name of the most similar plant you DO know in
             similarPlantName, and describe that similar plant instead.
@@ -71,11 +73,17 @@ public class LlmCareInfoAdapter implements PlantInfoProvider {
         return Optional.of(toProfile(json, query));
     }
 
-    /** Reference text from the web for the prompt, or "" when the search finds nothing or fails. */
+    /**
+     * Reference text from the web for the prompt, or "" when the search finds
+     * nothing about this species or fails. Only pages about the species itself
+     * are used: a search for "Gymnocalycium mihanovichii" also returns the page
+     * on the whole genus Gymnocalycium ("commonly called chin cactus"), and
+     * the AI took the species' common name from it.
+     */
     private String webContext(PlantQuery query) {
         List<WebResult> results;
         try {
-            results = webSearch.search(query.scientificName(), 2);
+            results = aboutSpecies(webSearch.search(query.scientificName(), 2), query.scientificName());
         } catch (ExternalServiceException e) {
             return "";
         }
@@ -87,6 +95,14 @@ public class LlmCareInfoAdapter implements PlantInfoProvider {
             sb.append("- ").append(r.title()).append(": ").append(r.extract()).append('\n');
         }
         return sb.toString();
+    }
+
+    /**
+     * The pages that are about this species: their title, or their text,
+     * names it (genus and species). Package-private for unit tests.
+     */
+    static List<WebResult> aboutSpecies(List<WebResult> results, String scientificName) {
+        return results.stream().filter(r -> PlantQuery.isAbout(r.title(), r.extract(), scientificName)).toList();
     }
 
     /** Package-private for unit tests. */

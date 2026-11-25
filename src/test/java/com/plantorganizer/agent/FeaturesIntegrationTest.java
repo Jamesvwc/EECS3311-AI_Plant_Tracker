@@ -314,39 +314,62 @@ class FeaturesIntegrationTest {
         mvc.perform(get("/api/share/" + token)).andExpect(status().isNotFound());
     }
 
-    // ------------------------------------------------------------------ CLI (chat box)
+    // ------------------------------------------------------------------ chat box: changes need approval
 
     @Test
-    void chatAgentInterpretsTheMessageAndRunsTheMatchingTools() throws Exception {
-        JsonNode added = chat("I bought a snake plant");
+    void chatAgentProposesChangesAndMakesThemOnlyWhenApproved() throws Exception {
+        JsonNode proposed = chat("I bought a snake plant");
+        assertThat(proposed.path("intent").asString()).isEqualTo("ADD_OWNED");
+        assertThat(proposed.path("text").asString()).isEqualTo("Add **Snake plant** (Dracaena trifasciata) to your plants?");
+        assertThat(proposed.path("actions").findValuesAsString("type")).containsExactly("APPROVE", "DECLINE");
+        assertThat(call(get("/api/plants"), null).size()).isZero(); // nothing added yet
+
+        JsonNode added = approve(proposed);
         assertThat(added.path("intent").asString()).isEqualTo("ADD_OWNED");
         assertThat(added.path("toolsUsed").valueStream().map(JsonNode::asString).toList())
                 .contains("LOOKUP_PLANT_INFO", "PLANT_COLLECTION", "CALENDAR");
         assertThat(added.path("text").asString()).contains("Added **Snake plant**");
         assertThat(added.path("actions").findValuesAsString("type")).contains("NOTIFY");
+        assertThat(call(get("/api/plants"), null).size()).isEqualTo(1);
 
-        JsonNode notify = call(post("/api/chat/action"), "{\"type\":\"NOTIFY\",\"payload\":" + added.at("/actions/0/payload") + "}");
+        JsonNode notify = action("NOTIFY", added.at("/actions/0/payload"));
         assertThat(notify.path("text").asString()).contains("Reminders are on");
 
-        JsonNode watered = chat("I watered the snake plant");
+        long plantId = call(get("/api/plants"), null).get(0).path("id").asLong();
+        String lastWatered = lastWatered(plantId);
+        JsonNode water = chat("I watered the snake plant");
+        assertThat(water.path("text").asString()).isEqualTo("Mark **Snake plant** as watered now?");
+        assertThat(lastWatered(plantId)).isEqualTo(lastWatered);
+        JsonNode watered = approve(water);
         assertThat(watered.path("intent").asString()).isEqualTo("MARK_WATERED");
         assertThat(watered.path("toolsUsed").get(0).asString()).isEqualTo("CALENDAR");
+        assertThat(lastWatered(plantId)).isNotEqualTo(lastWatered);
 
         JsonNode preference = chat("tell me something, I have a cat");
         assertThat(preference.path("intent").asString()).isEqualTo("GENERAL");
-        assertThat(call(get("/api/recommendations/preferences"), null).findValuesAsString("subject")).contains("has a cat");
+        assertThat(preference.path("text").asString()).contains("Should I remember this for next time?");
+        assertThat(preference.path("actions").findValuesAsString("label")).containsExactly("Remember: has a cat");
+        assertThat(preferences()).doesNotContain("has a cat");
+        approve(preference);
+        assertThat(preferences()).contains("has a cat");
 
-        assertThat(call(get("/api/chat/history"), null).size()).isEqualTo(7);
+        assertThat(call(get("/api/chat/history"), null).size()).isEqualTo(10);
     }
 
     @Test
-    void chatAgentUpdatesCareNotesAndSavesFreeTextNotes() throws Exception {
-        chat("I bought a snake plant");
+    void chatAgentUpdatesCareNotesAndSavesFreeTextNotesOnceApproved() throws Exception {
+        approve(chat("I bought a snake plant"));
         long plantId = call(get("/api/plants"), null).get(0).path("id").asLong();
         String before = call(get("/api/plants"), null).get(0).at("/care/careLevel").asString();
 
-        JsonNode updated = chat("update the care notes for my snake plant: water every 10 days, bright indirect light or part shade, toxic to pets");
-        assertThat(updated.path("intent").asString()).isEqualTo("UPDATE_CARE_NOTES");
+        JsonNode proposed = chat("update the care notes for my snake plant: water every 10 days, bright indirect light or part shade, toxic to pets");
+        assertThat(proposed.path("intent").asString()).isEqualTo("UPDATE_CARE_NOTES");
+        assertThat(proposed.path("text").asString()).contains("Change **Snake plant**'s care notes?",
+                "- Watering frequency: every 10 days (now: every 14-21 days)", "- Poisonous to pets: true (now empty)",
+                "I'll re-plan its waterings to match.");
+        assertThat(call(get("/api/plants"), null).get(0).at("/care/wateringFrequency").asString()).isEqualTo("every 14-21 days");
+
+        JsonNode updated = approve(proposed);
         assertThat(updated.path("text").asString()).contains("Watering frequency: every 10 days", "Poisonous to pets: true");
         JsonNode plant = call(get("/api/plants"), null).get(0);
         assertThat(plant.at("/care/wateringFrequency").asString()).isEqualTo("every 10 days");
@@ -358,11 +381,215 @@ class FeaturesIntegrationTest {
 
         JsonNode noted = chat("add a note to my snake plant that I repotted it today");
         assertThat(noted.path("intent").asString()).isEqualTo("ADD_NOTE");
-        assertThat(call(get("/api/plants/" + plantId + "/notes"), null).findValuesAsString("text"))
-                .anyMatch(t -> t.contains("repotted it today"));
+        assertThat(noted.path("text").asString()).startsWith("Add this note to **Snake plant**?");
+        assertThat(notes(plantId)).noneMatch(t -> t.contains("repotted it today"));
+        approve(noted);
+        assertThat(notes(plantId)).anyMatch(t -> t.contains("repotted it today"));
+    }
+
+    @Test
+    void aProposedChangeRunsOnceAndOnlyForItsOwner() throws Exception {
+        long plantId = addPlant("Dracaena trifasciata", "Snake plant");
+        String lastWatered = lastWatered(plantId);
+
+        JsonNode declined = chat("I watered the snake plant");
+        assertThat(action("DECLINE", payload(declined, "DECLINE")).path("text").asString()).isEqualTo("OK, I didn't change anything.");
+        assertThat(approve(declined).path("text").asString()).contains("isn't waiting any more");
+
+        JsonNode expired = chat("I watered the snake plant");
+        CLOCK.advance(Duration.ofMinutes(31));
+        assertThat(approve(expired).path("text").asString()).contains("isn't waiting any more");
+
+        JsonNode someoneElses = chat("I watered the snake plant");
+        String other = newUser("Other");
+        JsonNode byOther = json(mvc.perform(as(post("/api/chat/action"), other).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"type\":\"APPROVE\",\"payload\":" + payload(someoneElses, "APPROVE") + "}")).andExpect(status().isOk()));
+        assertThat(byOther.path("text").asString()).contains("isn't waiting any more");
+        assertThat(lastWatered(plantId)).isEqualTo(lastWatered); // nothing so far changed anything
+
+        assertThat(approve(someoneElses).path("intent").asString()).isEqualTo("MARK_WATERED");
+        String afterApproval = lastWatered(plantId);
+        assertThat(afterApproval).isNotEqualTo(lastWatered);
+        assertThat(approve(someoneElses).path("text").asString()).contains("isn't waiting any more"); // a second click does nothing
+        assertThat(lastWatered(plantId)).isEqualTo(afterApproval);
+    }
+
+    @Test
+    void typingYesShowsTheButtonsAgainAndTypingNoCancels() throws Exception {
+        long plantId = addPlant("Dracaena trifasciata", "Snake plant");
+        String lastWatered = lastWatered(plantId);
+
+        JsonNode proposed = chat("I watered the snake plant");
+        JsonNode yes = chat("yes");
+        assertThat(yes.path("text").asString()).startsWith("Nothing has changed yet");
+        assertThat(yes.path("actions")).isEqualTo(proposed.path("actions"));
+        assertThat(lastWatered(plantId)).isEqualTo(lastWatered);
+
+        assertThat(chat("no").path("text").asString()).isEqualTo("OK, I didn't change anything.");
+        assertThat(approve(proposed).path("text").asString()).contains("isn't waiting any more");
+        assertThat(lastWatered(plantId)).isEqualTo(lastWatered);
+
+        // with nothing proposed, "yes" is an ordinary message for the planner
+        assertThat(chat("yes").path("intent").asString()).isEqualTo("GENERAL");
+    }
+
+    @Test
+    void scheduleChangesFromChatWaitForApproval() throws Exception {
+        addPlant("Monstera deliciosa", "Swiss cheese plant");
+        String from = LocalDate.of(2026, 11, 12).toString();
+        String to = LocalDate.of(2026, 11, 30).toString();
+        String before = call(get("/api/calendar").param("from", from).param("to", to), null).get(0).path("dueAt").asString();
+
+        // adding the plant planned its waterings, which is the change an undo would reverse now
+        JsonNode undoAdding = chat("undo the last schedule change");
+        assertThat(undoAdding.path("text").asString()).startsWith("Undo your last schedule change?")
+                .contains("Added", "Swiss cheese plant");
+
+        JsonNode proposed = chat("I'm free weekday evenings after work");
+        assertThat(proposed.path("intent").asString()).isEqualTo("UPDATE_AVAILABILITY");
+        assertThat(proposed.path("text").asString()).startsWith("Re-plan your waterings to fit this availability?")
+                .contains("I'm free weekday evenings after work");
+        assertThat(call(get("/api/calendar").param("from", from).param("to", to), null).get(0).path("dueAt").asString())
+                .isEqualTo(before);
+
+        JsonNode rescheduled = approve(proposed);
+        assertThat(rescheduled.path("actions").findValuesAsString("type")).contains("UNDO_SCHEDULE");
+        assertThat(call(get("/api/calendar").param("from", from).param("to", to), null).get(0).path("dueAt").asString())
+                .endsWith("17:30:00");
+        // the older undo proposal was about a different change, so approving it now does nothing
+        assertThat(approve(undoAdding).path("text").asString()).startsWith("Your last schedule change has changed since I asked");
+        assertThat(call(get("/api/calendar").param("from", from).param("to", to), null).get(0).path("dueAt").asString())
+                .endsWith("17:30:00");
+
+        JsonNode undo = chat("undo the last schedule change");
+        assertThat(undo.path("text").asString()).startsWith("Undo your last schedule change?").contains("Rescheduled");
+        assertThat(call(get("/api/calendar").param("from", from).param("to", to), null).get(0).path("dueAt").asString())
+                .endsWith("17:30:00");
+        assertThat(approve(undo).path("text").asString()).startsWith("Undone:");
+        assertThat(call(get("/api/calendar").param("from", from).param("to", to), null).get(0).path("dueAt").asString())
+                .isEqualTo(before);
+    }
+
+    @Test
+    void placingRemindersAndWishlistSpotsFromChatWaitForApproval() throws Exception {
+        long plantId = addPlant("Dracaena trifasciata", "Snake plant");
+        long bedroom = call(post("/api/spaces"), "{\"name\":\"Bedroom\",\"light\":\"LOW\"}").path("id").longValue();
+
+        JsonNode place = chat("my snake plant is in the bedroom");
+        assertThat(place.path("text").asString()).isEqualTo("Put **Snake plant** in Bedroom?");
+        assertThat(call(get("/api/spaces/" + bedroom + "/plants"), null).size()).isZero();
+        assertThat(approve(place).path("text").asString()).startsWith("Done: **Snake plant** is now in Bedroom");
+        assertThat(call(get("/api/spaces/" + bedroom + "/plants"), null).size()).isEqualTo(1);
+
+        JsonNode remind = chat("remind me to water my plants");
+        assertThat(remind.path("text").asString())
+                .isEqualTo("Turn watering reminders on for your plant, and for plants you add later?");
+        assertThat(remind.at("/actions/0/payload/enablesReminders").asBoolean()).isTrue();
+        assertThat(call(get("/api/plants/" + plantId), null).path("notificationsEnabled").asBoolean()).isFalse();
+        assertThat(approve(remind).path("text").asString()).isEqualTo("Reminders are on for your plant, and for plants you add later.");
+        assertThat(call(get("/api/plants/" + plantId), null).path("notificationsEnabled").asBoolean()).isTrue();
+
+        long wishId = call(post("/api/desired"), "{\"scientificName\":\"Monstera deliciosa\",\"commonName\":\"Swiss cheese plant\"}")
+                .path("id").longValue();
+        JsonNode fit = chat("is the bedroom a good spot for my monstera?");
+        assertThat(fit.path("intent").asString()).isEqualTo("CHECK_FIT");
+        assertThat(fit.path("text").asString()).startsWith("**Poor fit** for Bedroom")
+                .contains("Should I note Bedroom as where you'd put Swiss cheese plant?");
+        assertThat(call(get("/api/desired"), null).get(0).path("intendedSpaceId").isNull()).isTrue(); // only checked
+        assertThat(approve(fit).path("text").asString()).startsWith("Noted: you'd put **Swiss cheese plant** in Bedroom");
+        JsonNode wish = call(get("/api/desired"), null).get(0);
+        assertThat(wish.path("id").longValue()).isEqualTo(wishId);
+        assertThat(wish.path("intendedSpaceId").longValue()).isEqualTo(bedroom);
+    }
+
+    // ------------------------------------------------------------------ Agent.jar support
+
+    @Test
+    void readOnlyChatAnswersQuestionsButOnlySuggestsChanges() throws Exception {
+        long plantId = addPlant("Dracaena trifasciata", "Snake plant");
+        String lastWatered = call(get("/api/plants/" + plantId), null).path("lastWateredAt").toString();
+
+        JsonNode question = call(post("/api/chat/ask"), "{\"message\":\"how are you today?\"}");
+        assertThat(question.path("intent").asString()).isEqualTo("GENERAL");
+        assertThat(question.path("suggestion").isNull()).isTrue();
+        assertThat(question.path("text").asString()).isNotBlank();
+
+        JsonNode change = call(post("/api/chat/ask"), "{\"message\":\"I watered the snake plant, I have a cat\"}");
+        assertThat(change.at("/suggestion/intent").asString()).isEqualTo("MARK_WATERED");
+        assertThat(change.at("/suggestion/plantName").asString()).isEqualTo("snake plant");
+        assertThat(change.at("/suggestion/readOnly").asBoolean()).isFalse();
+        assertThat(change.path("actions").size()).isZero();
+        // nothing changed: not watered, no preference saved
+        assertThat(call(get("/api/plants/" + plantId), null).path("lastWateredAt").toString()).isEqualTo(lastWatered);
+        assertThat(call(get("/api/recommendations/preferences"), null).findValuesAsString("subject")).doesNotContain("has a cat");
+        assertThat(call(get("/api/chat/history"), null).size()).isEqualTo(4);
+    }
+
+    @Test
+    void interpretOnlyClassifiesTheRequest() throws Exception {
+        JsonNode suggestion = call(post("/api/chat/interpret"), "{\"text\":\"add a note to my monstera\"}");
+        assertThat(suggestion.path("intent").asString()).isEqualTo("ADD_NOTE");
+        assertThat(suggestion.path("plantName").asString()).isEqualTo("monstera");
+        assertThat(call(get("/api/chat/history"), null).size()).isZero();
+    }
+
+    @Test
+    void plantNamesNoSourceRecognisesAreRejected() throws Exception {
+        for (String path : new String[] {"/api/plants", "/api/desired"}) {
+            mvc.perform(as(post(path).contentType(MediaType.APPLICATION_JSON).content("{\"scientificName\":\"Poopus maximus\"}"), user))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error").value(Matchers.containsString("No plant called \"Poopus maximus\" could be found")));
+        }
+        assertThat(call(get("/api/plants"), null).size()).isZero();
+        assertThat(call(get("/api/desired"), null).size()).isZero();
+        // a real species the plant database lacks is still added (the AI knows it)
+        assertThat(call(post("/api/desired"), "{\"scientificName\":\"Chlorophytum comosum\"}").path("id").isNumber()).isTrue();
+    }
+
+    @Test
+    void aPlantAddedWhileNoCareSourceAnswersIsKeptWithEmptyNotes() throws Exception {
+        // Perenual doesn't know it and Cohere is down: the name can't be checked, so the plant is added (UC02)
+        long plantId = call(post("/api/plants"), "{\"scientificName\":\"Failus downii\"}").path("plantId").longValue();
+        JsonNode plants = call(get("/api/plants"), null);
+        assertThat(plants.size()).isEqualTo(1);
+        assertThat(plants.get(0).at("/care/watering").isNull()).isTrue();
+        assertThat(call(get("/api/plants/" + plantId), null).path("scientificName").asString()).isEqualTo("Failus downii");
+    }
+
+    @Test
+    void automaticRecommendationsNeedSomethingToLearnFrom() throws Exception {
+        mvc.perform(as(post("/api/recommendations/refresh"), user)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(Matchers.containsString("doesn't know anything about you yet")));
     }
 
     private JsonNode chat(String message) throws Exception {
         return json(mvc.perform(as(multipart("/api/chat").param("message", message), user)).andExpect(status().isOk()));
+    }
+
+    private JsonNode action(String type, JsonNode payload) throws Exception {
+        return call(post("/api/chat/action"), "{\"type\":\"" + type + "\",\"payload\":" + payload + "}");
+    }
+
+    /** Presses the Yes button of the change a chat reply proposed. */
+    private JsonNode approve(JsonNode reply) throws Exception {
+        return action("APPROVE", payload(reply, "APPROVE"));
+    }
+
+    private static JsonNode payload(JsonNode reply, String type) {
+        return reply.path("actions").valueStream().filter(a -> type.equals(a.path("type").asString())).findFirst()
+                .map(a -> a.path("payload"))
+                .orElseThrow(() -> new AssertionError("No " + type + " button in " + reply));
+    }
+
+    private String lastWatered(long plantId) throws Exception {
+        return call(get("/api/plants/" + plantId), null).path("lastWateredAt").toString();
+    }
+
+    private java.util.List<String> preferences() throws Exception {
+        return call(get("/api/recommendations/preferences"), null).findValuesAsString("subject");
+    }
+
+    private java.util.List<String> notes(long plantId) throws Exception {
+        return call(get("/api/plants/" + plantId + "/notes"), null).findValuesAsString("text");
     }
 }

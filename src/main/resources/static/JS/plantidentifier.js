@@ -102,7 +102,7 @@ async function identifyByText(description) {
     state.photos = [];
     renderThumbnails();
     showOnly('upload');
-    setStatus('The agent is proposing species and checking them in Perenual...');
+    setStatus('The agent is proposing species, checking them and finding photos...');
     try {
         const result = await PO.api('/api/identify/text', { method: 'POST', json: { description } });
         renderCandidates(result, false);
@@ -116,17 +116,20 @@ function renderCandidates(result, fromPhotos) {
     const list = el('candidates');
     list.replaceChildren();
 
+    // The notes say why a guess was left out or unchecked, so they are shown whether or not anything matched.
+    const notes = result.notes && result.notes.length ? ' ' + result.notes.join(' ') : '';
     if (result.candidates.length === 0) {
-        el('candidatesHint').textContent = fromPhotos
+        el('candidatesHint').textContent = (fromPhotos
             ? "We couldn't recognise a plant in your photo. Try adding a clearer photo of a leaf or flower."
-            : "None of the agent's guesses could be confirmed. Add more detail (leaf shape, size, flowers) and try again.";
+            : "None of the agent's guesses could be confirmed. Add more detail (leaf shape, size, flowers) and try again.")
+            + notes;
     } else {
         el('candidatesHint').textContent =
             `Top ${plural(result.candidates.length, 'match', 'matches')}` +
             (fromPhotos ? ` from ${plural(result.photosUsed, 'photo')}. ` : ' for your description. ') +
             'Compare the reference photos with your plant.' +
             (result.remainingRequests != null ? ` (${result.remainingRequests} identifications left today)` : '') +
-            (result.notes && result.notes.length ? ' ' + result.notes.join(' ') : '');
+            notes;
     }
     el('addPhotosBtn').hidden = !fromPhotos;
 

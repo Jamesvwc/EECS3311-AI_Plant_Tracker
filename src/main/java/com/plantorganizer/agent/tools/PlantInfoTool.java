@@ -23,8 +23,9 @@ import tools.jackson.databind.json.JsonMapper;
  * PlantInfoService (Perenual, one retry, AI fallback) and returns a CareLookup.
  *
  * With {@code "description"} (text): the F01 text path. The LLM proposes
- * likely scientific names, then PlantInfoService.searchByName() keeps the ones
- * that exist in Perenual. Returns an IdentificationResult.
+ * likely species, then PlantInfoService.findSpecies() keeps the real ones
+ * (Wikipedia, then Perenual) and finds a reference photo of each, so the
+ * matches look like the photo path's. Returns an IdentificationResult.
  */
 public class PlantInfoTool implements Tool {
 
@@ -34,13 +35,15 @@ public class PlantInfoTool implements Tool {
     private static final String INSTRUCTIONS = """
             You identify plants from a person's description (leaf shape, colour, size, flowers, where it
             grows). Propose up to 5 likely species, most likely first, using accepted scientific names
-            (genus + species). confidence is 0-1. reason is one short sentence linking the description
-            to the species. If the text is not about a plant, return an empty candidates array.
+            (genus + species), with the everyday commonName of that species and its botanical family.
+            confidence is 0-1. reason is one short sentence linking the description to the species.
+            If the text is not about a plant, return an empty candidates array.
             """;
     private static final String SCHEMA = """
             {"type": "object", "properties": {"candidates": {"type": "array", "items": {"type": "object",
               "properties": {"scientificName": {"type": "string"}, "commonName": {"type": "string"},
-                             "confidence": {"type": "number"}, "reason": {"type": "string"}},
+                             "family": {"type": "string"}, "confidence": {"type": "number"},
+                             "reason": {"type": "string"}},
               "required": ["scientificName", "confidence"]}}},
              "required": ["candidates"]}
             """;
@@ -85,24 +88,32 @@ public class PlantInfoTool implements Tool {
                 continue;
             }
             String common = JsonValues.text(c.path("commonName"));
-            double confidence = c.path("confidence").isNumber() ? c.path("confidence").doubleValue() : 0.3;
+            String family = JsonValues.text(c.path("family"));
+            double confidence = Math.max(0, Math.min(1,
+                    c.path("confidence").isNumber() ? c.path("confidence").doubleValue() : 0.3));
             try {
-                plantInfoService.verifySpecies(scientific).ifPresentOrElse(
+                plantInfoService.findSpecies(scientific).ifPresentOrElse(
                         match -> verified.add(new PlantCandidate(match.scientificName(), null,
-                                names(common, match.primaryCommonName()), match.genus(), match.family(),
-                                Math.max(0, Math.min(1, confidence)), match.referenceImageUrl())),
-                        () -> notes.add("The AI suggested " + scientific + ", but Perenual has no such species, so it was dropped."));
+                                names(common, match.primaryCommonName()), match.genus(),
+                                match.family() != null ? match.family() : family, confidence,
+                                match.referenceImageUrl())),
+                        () -> notes.add("The AI suggested " + scientific + ", but neither Wikipedia nor "
+                                + "Perenual knows a species by that name, so it was left out."));
             } catch (ExternalServiceException e) {
-                unverified.add(new PlantCandidate(scientific, null, names(common, null), null, null,
-                        Math.max(0, Math.min(1, confidence)), null));
+                unverified.add(new PlantCandidate(scientific, null, names(common, null), genus(scientific), family,
+                        confidence, null));
                 if (notes.stream().noneMatch(n -> n.startsWith("Could not check"))) {
-                    notes.add("Could not check the AI's guesses against Perenual (" + e.getMessage()
-                            + "), so they are shown unverified.");
+                    notes.add("Could not check the AI's guesses (" + e.getMessage()
+                            + "), so they are shown unverified and without photos.");
                 }
             }
         }
         List<PlantCandidate> result = verified.isEmpty() ? unverified : verified;
         return new IdentificationResult(result.stream().limit(3).toList(), 0, null, notes);
+    }
+
+    private static String genus(String scientificName) {
+        return scientificName.trim().split("\\s+")[0];
     }
 
     private static List<String> names(String a, String b) {

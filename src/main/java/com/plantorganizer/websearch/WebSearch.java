@@ -1,6 +1,7 @@
 package com.plantorganizer.websearch;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.plantorganizer.common.ExternalServiceException;
 
@@ -16,4 +17,13 @@ public interface WebSearch {
      * @throws ExternalServiceException when the search service could not be reached
      */
     List<WebResult> search(String query, int maxResults);
+
+    /**
+     * The page with exactly this title (following redirects, so a species'
+     * older name finds its page), with its main photo.
+     *
+     * @return empty when there is no such page
+     * @throws ExternalServiceException when the service could not be reached
+     */
+    Optional<WebResult> page(String title);
 }

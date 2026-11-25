@@ -4,6 +4,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import com.plantorganizer.common.ExternalServiceException;
 import com.plantorganizer.common.JsonValues;
 import com.plantorganizer.llm.LLMClient;
 import com.plantorganizer.plantinfo.CareLookup;
+import com.plantorganizer.plantinfo.InfoSource;
 import com.plantorganizer.plantinfo.PlantCareProfile;
 import com.plantorganizer.plantinfo.PlantQuery;
 import com.plantorganizer.plants.DesiredPlant.FitVerdict;
@@ -74,7 +76,8 @@ public class PlantAgent {
     private static final String RESCHEDULE_INSTRUCTIONS = """
             You are PlantOrganizer's plant-care assistant. Summarise, in 2-4 friendly sentences, how you
             understood the user's availability and how the watering calendar changed. Mention travel or
-            trips if any. Tell them they can press "Undo" if anything looks wrong. No headings.
+            trips if any. If some needs can't be fully met, say clearly which plants will go too long
+            without water. Tell them they can press "Undo" if anything looks wrong. No headings.
             """;
     private static final String FIT_INSTRUCTIONS = """
             You judge whether a plant suits a specific space in the user's home, from the plant's care
@@ -93,7 +96,9 @@ public class PlantAgent {
             sure, say so. Encourage them to observe their plants and learn from them rather than trust you
             blindly. You can also do things in the app; if relevant, mention they can ask you to identify a
             plant, add it to their plants, check a plant's health, plan watering around their schedule or
-            recommend plants. Format: short paragraphs, "- " bullets and **bold** allowed, no headings.
+            recommend plants. This answer changes nothing in the app: never say you added, saved, watered,
+            moved, scheduled, updated or remembered anything. Changes are only made when the user approves
+            them. Format: short paragraphs, "- " bullets and **bold** allowed, no headings.
             """;
 
     private final AgentPlanner planner;
@@ -123,6 +128,8 @@ public class PlantAgent {
                 if (!results.has(ToolType.LOOKUP_PLANT_INFO)) {
                     notes.add("Care information couldn't be found, so this plant's care notes were left empty. "
                             + "You can fill them in on its page or ask the agent for help.");
+                } else {
+                    aiCareNote(results.get(ToolType.LOOKUP_PLANT_INFO, CareLookup.class)).ifPresent(notes::add);
                 }
                 // F04: the agent asks about reminders only the first time it makes a schedule (UC03).
                 boolean ask = !userRepository.findById(request.userId()).isNotificationsAsked();
@@ -175,6 +182,20 @@ public class PlantAgent {
     private static List<String> spaces(StepResults results) {
         List<String> spaces = results.get(ToolType.SPACE, List.class);
         return spaces == null ? List.of() : spaces;
+    }
+
+    /**
+     * When the plant database couldn't provide the care notes and the AI wrote
+     * them, says so and why (e.g. Perenual rejected the API key), instead of
+     * only writing it to the server log.
+     */
+    static Optional<String> aiCareNote(CareLookup lookup) {
+        if (lookup == null || lookup.profile().source() != InfoSource.AI_GENERATED) {
+            return Optional.empty();
+        }
+        List<String> why = lookup.notes().stream().filter(n -> !n.startsWith("Asked ")).toList();
+        return Optional.of("These care notes were written by the AI, so they are less reliable"
+                + (why.isEmpty() ? "." : ": " + String.join(" ", why)));
     }
 
     // ------------------------------------------------------------------ F01 explanation
@@ -274,13 +295,15 @@ public class PlantAgent {
     String explainReschedule(RescheduleResult r) {
         String facts = "Understood availability: " + r.availability().summary() + "\nTravel buffer minutes: "
                 + r.availability().travelBufferMinutes() + "\nTrips away: " + r.availability().awayPeriods().size()
-                + "\nPlants rescheduled: " + r.plantsRescheduled() + "\nChanges:\n- " + String.join("\n- ", r.examples());
+                + "\nPlants rescheduled: " + r.plantsRescheduled() + "\nChanges:\n- " + String.join("\n- ", r.examples())
+                + (r.warnings().isEmpty() ? "" : "\nNeeds that can't be fully met:\n- " + String.join("\n- ", r.warnings()));
         return generateOr(RESCHEDULE_INSTRUCTIONS, facts, () -> {
             if (r.plantsRescheduled() == 0) {
                 return "Got it: " + r.availability().summary() + " I'll use this when you add plants.";
             }
             return "Got it: " + r.availability().summary() + " I moved " + r.plantsRescheduled()
                     + " plant(s) onto times that suit you:\n- " + String.join("\n- ", r.examples())
+                    + (r.warnings().isEmpty() ? "" : "\n\nHeads up:\n- " + String.join("\n- ", r.warnings()))
                     + "\n\nPress \"Undo\" if anything looks wrong.";
         });
     }

@@ -5,7 +5,9 @@ import java.util.Map;
 /**
  * A button under an agent reply in the chat box. SEND re-sends {@code payload.text}
  * as a chat message, OPEN navigates to {@code payload.url}; every other type is
- * sent back to /api/chat/action and handled by ChatAgent.act().
+ * sent back to /api/chat/action and handled by ChatAgent.act(). APPROVE and
+ * DECLINE answer a change the agent proposed ({@code payload.proposalId}, see
+ * {@link PendingChanges}): only APPROVE makes it.
  */
 public record ChatAction(String label, String type, Map<String, Object> payload) {
 

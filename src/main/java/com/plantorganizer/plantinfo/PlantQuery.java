@@ -29,6 +29,17 @@ public record PlantQuery(String scientificName, String commonName, String search
     }
 
     /**
+     * True when a page with this title and text is about this species: the
+     * title is the species' name, or the text names it. A page about the whole
+     * genus (or another species) is not.
+     */
+    public static boolean isAbout(String title, String text, String scientificName) {
+        String species = binomial(scientificName);
+        return !species.isEmpty() && (binomial(title).equals(species)
+                || (text != null && text.toLowerCase().contains(species)));
+    }
+
+    /**
      * Genus + species epithet in lower case ("monstera deliciosa"), used to
      * check that a search hit really is the confirmed species and not just a
      * plant with a similar name. Hybrid markers ("x", "×") are ignored.

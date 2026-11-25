@@ -37,6 +37,10 @@ public final class ExternalApiStub {
             5, new String[] {"Chlorophytum comosum", "Spider plant", null},
             6, new String[] {"Zamioculcas zamiifolia", "ZZ plant", null});
 
+    /** Species with a Wikipedia page: the ones Perenual has, plus one it lacks. */
+    private static final java.util.Set<String> WIKIPEDIA = java.util.Set.of("Monstera deliciosa", "Dracaena trifasciata",
+            "Epipremnum aureum", "Ficus lyrata", "Chlorophytum comosum", "Zamioculcas zamiifolia", "Gymnocalycium mihanovichii");
+
     private final HttpServer server;
 
     public ExternalApiStub() {
@@ -55,6 +59,16 @@ public final class ExternalApiStub {
 
     public void stop() {
         server.stop(0);
+    }
+
+    /** Wikipedia's page query: the introduction and photo of a known page, else "missing". */
+    private static String wikipediaPage(String title) {
+        if (!WIKIPEDIA.contains(title)) {
+            return "{\"query\":{\"pages\":{\"-1\":{\"title\":\"" + title + "\",\"missing\":\"\"}}}}";
+        }
+        return "{\"query\":{\"pages\":{\"1\":{\"pageid\":1,\"title\":\"" + title + "\",\"extract\":\"" + title
+                + " is a species of plant. A tropical plant that likes bright indirect light.\",\"thumbnail\":{\"source\":"
+                + "\"https://upload.wikimedia.org/test/" + title.replace(' ', '_') + ".jpg\"}}}}}";
     }
 
     private void handle(HttpExchange ex) throws IOException {
@@ -83,9 +97,14 @@ public final class ExternalApiStub {
                     : s[2].replaceFirst("\\{", "{\"scientific_name\":[\"" + s[0] + "\"],\"common_name\":\"" + s[1] + "\",");
         } else if (path.equals("/w/rest.php/v1/search/page")) {
             response = "{\"pages\":[{\"key\":\"Monstera_deliciosa\",\"title\":\"Monstera deliciosa\",\"excerpt\":\"x\"}]}";
-        } else if (path.startsWith("/api/rest_v1/page/summary/")) {
-            response = "{\"extract\":\"A tropical plant that likes bright indirect light.\"}";
+        } else if (path.equals("/w/api.php")) {
+            response = wikipediaPage(query.replaceAll(".*titles=([^&]*).*", "$1").replace('_', ' '));
         } else if (path.equals("/v2/chat")) {
+            if (body.contains("Failus")) {
+                // "Failus" stands for a plant asked about while Cohere is down
+                send(ex, 503, "{\"message\":\"service unavailable\"}");
+                return;
+            }
             JsonNode request = JSON.readTree(body);
             String problem = schemaProblem(request.path("response_format").path("json_schema"), "");
             if (problem != null) {
@@ -109,8 +128,13 @@ public final class ExternalApiStub {
         String prompt = user.isArray() ? user.get(0).path("text").asString() : user.asString();
         String text;
         if (schema.contains("knownSpecies")) {
-            text = "{\"knownSpecies\":true,\"scientificName\":\"Chlorophytum comosum\",\"watering\":\"Average\","
-                    + "\"wateringFrequency\":\"every 7 days\",\"sunlight\":[\"bright indirect\"],\"careLevel\":\"Easy\",\"description\":\"Easy.\"}";
+            // "Poopus" stands for a made-up name: the model says it doesn't know the species (it describes a similar one)
+            text = prompt.contains("Poopus")
+                    ? "{\"knownSpecies\":false,\"similarPlantName\":\"Golden pothos\",\"scientificName\":\"Poopus maximus\","
+                      + "\"watering\":\"Average\",\"wateringFrequency\":\"every 7 days\",\"sunlight\":[\"bright indirect\"],"
+                      + "\"careLevel\":\"Easy\",\"description\":\"Unknown.\"}"
+                    : "{\"knownSpecies\":true,\"scientificName\":\"Chlorophytum comosum\",\"watering\":\"Average\","
+                      + "\"wateringFrequency\":\"every 7 days\",\"sunlight\":[\"bright indirect\"],\"careLevel\":\"Easy\",\"description\":\"Easy.\"}";
         } else if (schema.contains("\"intent\"")) {
             text = intent(prompt.substring(prompt.lastIndexOf("Latest message:")).toLowerCase());
         } else if (schema.contains("\"hardinessZones\"")) {
@@ -118,7 +142,13 @@ public final class ExternalApiStub {
                     + "\"careLevel\":\"\",\"growthRate\":\"\",\"hardinessZones\":\"\",\"family\":\"\",\"description\":\"\","
                     + "\"indoor\":\"\",\"poisonousToPets\":\"true\",\"poisonousToHumans\":\"\"}";
         } else if (schema.contains("\"candidates\"")) {
-            text = prompt.toLowerCase().contains("snake")
+            // the moon cactus: a real species Perenual's (free) catalogue lacks, plus a name the AI made up
+            text = prompt.toLowerCase().contains("imaginary")
+                    ? "{\"candidates\":[{\"scientificName\":\"Imaginaria fakeii\",\"confidence\":0.5}]}"
+                    : prompt.toLowerCase().contains("hylocereus")
+                    ? "{\"candidates\":[{\"scientificName\":\"Gymnocalycium mihanovichii\",\"commonName\":\"Moon cactus\","
+                      + "\"family\":\"Cactaceae\",\"confidence\":0.9},{\"scientificName\":\"Gymnocalycium fakeum\",\"confidence\":0.1}]}"
+                    : prompt.toLowerCase().contains("snake")
                     ? "{\"candidates\":[{\"scientificName\":\"Dracaena trifasciata\",\"commonName\":\"Snake plant\",\"confidence\":0.9}]}"
                     : "{\"candidates\":[{\"scientificName\":\"Monstera deliciosa\",\"commonName\":\"Swiss cheese plant\",\"confidence\":0.8},"
                       + "{\"scientificName\":\"Monstera fakeii\",\"confidence\":0.2}]}";
@@ -196,10 +226,13 @@ public final class ExternalApiStub {
         String type = m.contains("care notes") ? "UPDATE_CARE_NOTES" : m.contains("a note") ? "ADD_NOTE"
                 : m.contains("watered") ? "MARK_WATERED" : m.contains("needs water") ? "WATERING_STATUS"
                 : m.contains("bought") ? "ADD_OWNED" : m.contains("yellow") ? "HEALTH_CHECK"
-                : m.contains("recommend") ? "RECOMMEND" : m.contains("free") ? "UPDATE_AVAILABILITY" : "GENERAL";
+                : m.contains("recommend") ? "RECOMMEND" : m.contains("free") ? "UPDATE_AVAILABILITY"
+                : m.contains("undo") ? "UNDO_SCHEDULE" : m.contains("remind") ? "NOTIFICATIONS_ON"
+                : m.contains("good spot") ? "CHECK_FIT" : m.contains(" is in the ") ? "PLACE_PLANT" : "GENERAL";
         String plant = m.contains("monstera") ? "monstera" : m.contains("snake") ? "snake plant" : "";
-        return "{\"intent\":\"" + type + "\",\"plantName\":\"" + plant + "\",\"spaceName\":\"\",\"details\":\"\",\"preference\":\""
-                + (m.contains("cat") ? "has a cat" : "") + "\"}";
+        String space = m.contains("bedroom") ? "Bedroom" : "";
+        return "{\"intent\":\"" + type + "\",\"plantName\":\"" + plant + "\",\"spaceName\":\"" + space
+                + "\",\"details\":\"\",\"preference\":\"" + (m.contains("cat") ? "has a cat" : "") + "\"}";
     }
 
     private static void send(HttpExchange ex, int status, String body) throws IOException {

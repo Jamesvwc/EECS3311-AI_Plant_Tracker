@@ -5,13 +5,21 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 
+import com.plantorganizer.agent.PendingChanges.PendingChange;
 import com.plantorganizer.common.ExternalServiceException;
 import com.plantorganizer.common.ForbiddenException;
 import com.plantorganizer.common.InvalidInputException;
@@ -34,6 +42,7 @@ import com.plantorganizer.plants.PlantRepository;
 import com.plantorganizer.recommendation.RecommendationEngine;
 import com.plantorganizer.recommendation.RecommendedPlant;
 import com.plantorganizer.schedule.RescheduleResult;
+import com.plantorganizer.schedule.ScheduleManager;
 import com.plantorganizer.schedule.availability.AvailabilityInput;
 import com.plantorganizer.schedule.availability.ScheduleParseException;
 import com.plantorganizer.spaces.SpaceComponent;
@@ -44,21 +53,48 @@ import com.plantorganizer.user.UserRepository;
 import com.plantorganizer.websearch.ResearchResult;
 
 /**
- * The agent's conversational front end, behind the chat box that serves as
- * the app's CLI (new class in Stage 2; Stage 1's CliConsole talked to
- * AgentController directly).
+ * The agent's conversational front end, behind the GUI's chat box (new class
+ * in Stage 2). Stage 1's CliConsole is now the terminal Agent.jar, which
+ * reaches the same agent through {@link #ask}.
  *
- * For each message it: stores it in AgentMemory, asks AgentPlanner to
+ * For each message it stores it in AgentMemory, asks AgentPlanner to
  * interpret the intent with the user's plants, spaces and recent conversation
- * as context, resolves plant and space names against the database, runs the
- * matching PlantAgent request (the same plans the GUI uses), and writes a
- * reply with buttons for the next step. Button clicks come back through
- * {@link #act}.
+ * as context, and resolves plant and space names against the database. Then:
+ * <ul>
+ *   <li>questions and analyses (care questions, identification, health
+ *       checks, recommendations, fit checks, what needs water) are answered
+ *       straight away with the same PlantAgent plans the GUI pages use;</li>
+ *   <li>a message never changes the user's data by itself. A change (adding a
+ *       plant, rescheduling, marking watered, moving a plant, editing notes,
+ *       reminders, remembering a preference) is worked out but not made: it
+ *       becomes a {@link PendingChanges proposal}, and the reply says exactly
+ *       what will change, with a Yes button. Only pressing it makes the
+ *       change.</li>
+ * </ul>
+ * Button clicks come back through {@link #act}.
  */
 @Service
 public class ChatAgent {
 
     private static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("EEE MMM d, HH:mm", Locale.ENGLISH);
+
+    static final String NO_LONGER_WAITING = "That change isn't waiting any more: it was already made or cancelled, "
+            + "or it expired (I keep proposed changes for 30 minutes). Ask me again if you still want it.";
+    static final String NOTHING_CHANGED = "OK, I didn't change anything.";
+
+    /** A bare "yes" or "no" typed in answer to a proposed change. */
+    private static final Pattern YES = Pattern.compile(
+            "(?i)(y|yes|yeah|yep|yup|sure|ok|okay|please|yes please|do it|go ahead|confirm|approve|sounds good)[.! ]*");
+    private static final Pattern NO = Pattern.compile(
+            "(?i)(n|no|nope|nah|no thanks|no thank you|cancel|don'?t|never ?mind|stop)[.! ]*");
+
+    /**
+     * The allow-list of the read-only chat (Agent.jar's /chat): intents that
+     * only read data. Every other intent changes something, so read-only chat
+     * answers it with a {@link SuggestedAction} instead of running it.
+     */
+    static final Set<ChatIntent.Type> READ_ONLY_INTENTS = EnumSet.of(
+            ChatIntent.Type.GENERAL, ChatIntent.Type.CARE_QUESTION, ChatIntent.Type.WATERING_STATUS);
 
     private final PlantAgent agent;
     private final AgentPlanner planner;
@@ -67,11 +103,14 @@ public class ChatAgent {
     private final SpaceManager spaceManager;
     private final RecommendationEngine recommendationEngine;
     private final UserRepository userRepository;
+    private final ScheduleManager scheduleManager;
+    private final PendingChanges pending;
     private final Clock clock;
 
     public ChatAgent(PlantAgent agent, AgentPlanner planner, AgentMemory memory, PlantRepository plantRepository,
                      SpaceManager spaceManager, RecommendationEngine recommendationEngine,
-                     UserRepository userRepository, Clock clock) {
+                     UserRepository userRepository, ScheduleManager scheduleManager, PendingChanges pending,
+                     Clock clock) {
         this.agent = agent;
         this.planner = planner;
         this.memory = memory;
@@ -79,6 +118,8 @@ public class ChatAgent {
         this.spaceManager = spaceManager;
         this.recommendationEngine = recommendationEngine;
         this.userRepository = userRepository;
+        this.scheduleManager = scheduleManager;
+        this.pending = pending;
         this.clock = clock;
     }
 
@@ -92,21 +133,122 @@ public class ChatAgent {
         userRepository.findById(userId);
         memory.remember(userId, ChatMessage.Role.USER, text.isEmpty() ? "[sent a photo]"
                 : text + (photo != null ? " [photo attached]" : ""));
-        ChatIntent intent = planner.interpret(text.isEmpty() ? "(photo only, no text)" : text, photo != null,
-                context(userId));
-        if (intent.preference() != null) {
-            memory.savePreference(userId, UserPreference.Kind.NOTE, intent.preference());
+        ChatReply reply = photo == null ? answerToOffer(userId, text).orElse(null) : null;
+        if (reply == null) {
+            ChatIntent intent = planner.interpret(text.isEmpty() ? "(photo only, no text)" : text, photo != null,
+                    context(userId));
+            reply = safely(intent.type().name(), () -> handle(userId, intent, text, photo));
+            if (intent.preference() != null && !intent.preference().isBlank()) {
+                reply = offerToRemember(userId, reply, intent.preference().trim());
+            }
         }
-        ChatReply reply = safely(intent.type().name(), () -> handle(userId, intent, text, photo));
+        pending.offered(userId, reply);
         memory.remember(userId, ChatMessage.Role.AGENT, reply.text());
         return reply;
     }
 
-    /** A button under a reply was pressed. */
+    /** A button under a reply was pressed. APPROVE makes a proposed change; DECLINE drops it. */
     public ChatReply act(long userId, String type, Map<String, Object> payload) {
         ChatReply reply = safely(type, () -> handleAction(userId, type, payload == null ? Map.of() : payload));
+        pending.offered(userId, reply);
         memory.remember(userId, ChatMessage.Role.AGENT, reply.text());
         return reply;
+    }
+
+    /**
+     * A bare "yes" or "no" typed right after the agent proposed a change.
+     * Changes are approved with their button only, so a typed "yes" changes
+     * nothing: the agent shows the buttons again. A typed "no" cancels what
+     * was proposed. Anything else goes to the planner as usual.
+     */
+    private Optional<ChatReply> answerToOffer(long userId, String text) {
+        boolean yes = YES.matcher(text).matches();
+        boolean no = NO.matcher(text).matches();
+        List<ChatAction> offer = yes || no ? pending.lastOffer(userId) : List.of();
+        if (offer.isEmpty()) {
+            return Optional.empty();
+        }
+        if (no) {
+            offer.forEach(a -> pending.take(userId, PendingChanges.proposalId(a)));
+            return Optional.of(ChatReply.of(NOTHING_CHANGED, "DECLINE"));
+        }
+        String intent = pending.peek(userId, PendingChanges.proposalId(offer.get(0)))
+                .map(PendingChange::intent).orElse("APPROVE");
+        return Optional.of(new ChatReply("Nothing has changed yet: I only make a change when you press its button. "
+                + "Press it here to go ahead:", offer, intent, List.of()));
+    }
+
+    /**
+     * The planner noticed a lasting fact about the user ("has a cat").
+     * Remembering it changes what the agent knows about them (it steers
+     * recommendations), so it is offered with a button too.
+     */
+    private ChatReply offerToRemember(long userId, ChatReply reply, String fact) {
+        String label = "Remember: " + (fact.length() > 40 ? fact.substring(0, 37) + "..." : fact);
+        PendingChange remember = pending.propose(userId, "REMEMBER", "Remember: " + fact, label, () -> {
+            memory.savePreference(userId, UserPreference.Kind.NOTE, fact);
+            return ChatReply.of("OK, I'll remember that: " + fact + ".", "REMEMBER");
+        });
+        List<ChatAction> actions = new ArrayList<>(reply.actions());
+        actions.add(PendingChanges.button(label, "APPROVE", remember));
+        return new ChatReply(reply.text() + "\n\nShould I remember this for next time? It helps me recommend plants: **"
+                + fact + "**", actions, reply.intent(), reply.toolsUsed(), reply.suggestion());
+    }
+
+    /** A reply proposing a change: what will change, a Yes button that makes it, and a No button. */
+    private ChatReply propose(long userId, String kind, String description, String approveLabel,
+                              Supplier<ChatReply> change) {
+        return propose(userId, kind, description, approveLabel, Map.of(), change);
+    }
+
+    private ChatReply propose(long userId, String kind, String description, String approveLabel,
+                              Map<String, Object> approvePayload, Supplier<ChatReply> change) {
+        PendingChange proposal = pending.propose(userId, kind, description, approveLabel, change);
+        Map<String, Object> approve = new HashMap<>(approvePayload);
+        approve.put(PendingChanges.PROPOSAL_ID, proposal.id());
+        return new ChatReply(description, List.of(new ChatAction(approveLabel, "APPROVE", approve),
+                PendingChanges.button("No, leave it", "DECLINE", proposal)), kind, List.of());
+    }
+
+    /**
+     * Read-only chat for the terminal CLI (Agent.jar's /chat). Questions,
+     * care questions and "what needs water?" are answered as usual; anything
+     * that would change data is not run. The reply then carries a
+     * {@link SuggestedAction} the CLI turns into a structured command the user
+     * confirms. No preference is saved and the reply has no buttons, so
+     * nothing said in this chat changes the user's data.
+     */
+    public ChatReply ask(long userId, String message) {
+        String text = message == null ? "" : message.trim();
+        if (text.isEmpty()) {
+            throw new InvalidInputException("Type a message for the agent.");
+        }
+        userRepository.findById(userId);
+        memory.remember(userId, ChatMessage.Role.USER, text);
+        ChatIntent intent = planner.interpret(text, false, context(userId));
+        ChatReply reply;
+        if (READ_ONLY_INTENTS.contains(intent.type())) {
+            reply = safely(intent.type().name(), () -> handle(userId, intent, text, null)).withoutActions();
+        } else {
+            reply = new ChatReply("That's a change to your data, and chat only answers questions. "
+                    + "There's a command that can do it for you.", List.of(), intent.type().name(), List.of(),
+                    SuggestedAction.of(intent));
+        }
+        memory.remember(userId, ChatMessage.Role.AGENT, reply.text());
+        return reply;
+    }
+
+    /**
+     * What does this text ask for? Runs only the planner: nothing is stored,
+     * answered or changed. The CLI uses it when a typed command is malformed,
+     * to offer the command it thinks the user meant.
+     */
+    public SuggestedAction interpret(long userId, String text) {
+        if (text == null || text.isBlank()) {
+            throw new InvalidInputException("Nothing to interpret.");
+        }
+        userRepository.findById(userId);
+        return SuggestedAction.of(planner.interpret(text.trim(), false, context(userId)));
     }
 
     public List<ChatMessage> history(long userId) {
@@ -115,6 +257,7 @@ public class ChatAgent {
 
     public void clear(long userId) {
         memory.clearConversation(userId);
+        pending.clear(userId);
     }
 
     private interface ReplySupplier {
@@ -143,14 +286,8 @@ public class ChatAgent {
             case ADD_OWNED -> addOwnedByName(userId, firstNonBlank(intent.plantName(), details), intent.spaceName(), kind);
             case ADD_DESIRED -> addDesiredByName(userId, firstNonBlank(intent.plantName(), details), intent.spaceName(), kind);
             case HEALTH_CHECK -> health(userId, intent, details, photo, text, kind);
-            case UPDATE_AVAILABILITY -> {
-                AvailabilityInput input = photo != null ? AvailabilityInput.file(photo) : AvailabilityInput.text(details);
-                AgentResponse r = agent.run(AgentRequest.updateSchedule(userId, input));
-                RescheduleResult result = r.resultAs(RescheduleResult.class);
-                yield reply(result.explanation(), kind, r, List.of(
-                        new ChatAction("Undo", "UNDO_SCHEDULE", Map.of()), ChatAction.open("Open calendar", "calendar.html")));
-            }
-            case UNDO_SCHEDULE -> undo(userId, kind);
+            case UPDATE_AVAILABILITY -> proposeAvailability(userId, details, photo, kind);
+            case UNDO_SCHEDULE -> proposeUndo(userId, kind);
             case RECOMMEND -> recommend(userId, details, kind);
             case REFRESH_RECOMMENDATIONS -> {
                 AgentResponse r = agent.run(AgentRequest.recommendLearned(userId));
@@ -163,17 +300,17 @@ public class ChatAgent {
             case WATERING_STATUS -> wateringStatus(userId, kind);
             case MARK_WATERED -> {
                 if (intent.plantName() != null && intent.plantName().toLowerCase(Locale.ROOT).matches("all|everything|all of them|all plants")) {
-                    yield waterAllDue(userId, kind);
+                    yield proposeWaterAllDue(userId, kind);
                 }
                 OwnedPlant plant = resolveOwned(userId, intent.plantName(), text);
                 yield plant == null ? whichPlant(userId, "Which plant did you water?", "I watered my ", kind)
-                        : water(userId, plant.getId(), kind);
+                        : proposeWatered(plant, userId, kind);
             }
             case NOTIFICATIONS_ON, NOTIFICATIONS_OFF -> {
                 boolean on = intent.type() == ChatIntent.Type.NOTIFICATIONS_ON;
                 OwnedPlant plant = resolveOwned(userId, intent.plantName(), null);
-                yield plant != null && intent.plantName() != null ? notify(userId, plant.getId(), on, false, kind)
-                        : notifyAll(userId, on, kind);
+                yield plant != null && intent.plantName() != null ? proposeNotify(userId, plant, on, kind)
+                        : proposeNotifyAll(userId, on, kind);
             }
             case CHECK_FIT -> checkFit(userId, intent, kind);
             case UPDATE_CARE_NOTES -> updateCareNotes(userId, intent, text, kind);
@@ -193,6 +330,12 @@ public class ChatAgent {
 
     private ChatReply handleAction(long userId, String type, Map<String, Object> p) {
         return switch (type) {
+            case "APPROVE" -> pending.take(userId, str(p, PendingChanges.PROPOSAL_ID))
+                    .map(proposal -> proposal.change().get())
+                    .orElseGet(() -> ChatReply.of(NO_LONGER_WAITING, type));
+            case "DECLINE" -> pending.take(userId, str(p, PendingChanges.PROPOSAL_ID))
+                    .map(proposal -> ChatReply.of(NOTHING_CHANGED, proposal.intent()))
+                    .orElseGet(() -> ChatReply.of(NO_LONGER_WAITING, type));
             case "CONFIRM_CANDIDATE" -> {
                 AgentResponse r = agent.run(AgentRequest.explainConfirmedPlant(userId,
                         PlantQuery.of(str(p, "scientificName"), str(p, "commonName"))));
@@ -301,12 +444,16 @@ public class ChatAgent {
             return ChatReply.of("Which plant did you get? Tell me its name or describe it.", kind);
         }
         Optional<PlantCandidate> match = bestMatch(userId, name);
-        Long spaceId = spaceManager.findByName(userId, spaceName).map(SpaceComponent::getId).orElse(null);
-        if (match.isPresent()) {
-            PlantCandidate c = match.get();
-            return addOwned(userId, c.scientificName(), firstNonBlank(c.primaryCommonName(), name), spaceId, kind);
+        Optional<SpaceComponent> space = spaceManager.findByName(userId, spaceName);
+        Long spaceId = space.map(SpaceComponent::getId).orElse(null);
+        if (match.isEmpty()) {
+            return candidatesToPick(userId, name, "OWN_PLANT", "Add ", spaceId, kind);
         }
-        return candidatesToPick(userId, name, "OWN_PLANT", "Add ", spaceId, kind);
+        PlantCandidate c = match.get();
+        String commonName = firstNonBlank(c.primaryCommonName(), name);
+        return propose(userId, kind, "Add **" + commonName + "** (" + c.scientificName() + ") to your plants"
+                        + space.map(s -> ", in " + s.path()).orElse("") + "?", "Yes, add it",
+                () -> addOwned(userId, c.scientificName(), commonName, spaceId, kind));
     }
 
     private ChatReply addDesiredByName(long userId, String name, String spaceName, String kind) {
@@ -314,19 +461,25 @@ public class ChatAgent {
             return ChatReply.of("Which plant would you like on your wishlist?", kind);
         }
         Optional<PlantCandidate> match = bestMatch(userId, name);
-        Long spaceId = spaceManager.findByName(userId, spaceName).map(SpaceComponent::getId).orElse(null);
+        Optional<SpaceComponent> space = spaceManager.findByName(userId, spaceName);
+        Long spaceId = space.map(SpaceComponent::getId).orElse(null);
         if (match.isEmpty()) {
             return candidatesToPick(userId, name, "ADD_DESIRED", "Wishlist ", spaceId, kind);
         }
         PlantCandidate c = match.get();
-        AgentResponse r = agent.run(AgentRequest.addDesiredPlant(userId, c.scientificName(),
-                firstNonBlank(c.primaryCommonName(), name), spaceId, null, c.referenceImageUrl()));
-        DesiredPlant d = r.resultAs(DesiredPlant.class);
-        List<ChatAction> actions = new ArrayList<>(List.of(ChatAction.open("Open wishlist", "desiredplants.html")));
-        if (spaceId != null) {
-            actions.add(0, new ChatAction("Is that a good spot?", "CHECK_FIT", Map.of("desiredId", d.getId())));
-        }
-        return reply("Added **" + d.getDisplayName() + "** (" + d.getScientificName() + ") to your wishlist.", kind, r, actions);
+        String commonName = firstNonBlank(c.primaryCommonName(), name);
+        return propose(userId, kind, "Add **" + commonName + "** (" + c.scientificName() + ") to your wishlist"
+                + space.map(s -> ", for " + s.path()).orElse("") + "?", "Yes, add it", () -> {
+            AgentResponse r = agent.run(AgentRequest.addDesiredPlant(userId, c.scientificName(), commonName, spaceId,
+                    null, c.referenceImageUrl()));
+            DesiredPlant d = r.resultAs(DesiredPlant.class);
+            List<ChatAction> actions = new ArrayList<>(List.of(ChatAction.open("Open wishlist", "desiredplants.html")));
+            if (spaceId != null) {
+                actions.add(0, new ChatAction("Is that a good spot?", "CHECK_FIT", Map.of("desiredId", d.getId())));
+            }
+            return reply("Added **" + d.getDisplayName() + "** (" + d.getScientificName() + ") to your wishlist.", kind,
+                    r, actions);
+        });
     }
 
     /** Uses the text-identification tool to turn a plant name into a verified species. */
@@ -431,6 +584,31 @@ public class ChatAgent {
                 new ChatAction("Still not helpful", "HEALTH_STILL_UNSATISFIED", Map.of("plantId", plant.getId()))));
     }
 
+    /** F03 from the chat box: the availability (typed, or a timetable photo) is applied only once approved. */
+    private ChatReply proposeAvailability(long userId, String details, PlantImage photo, String kind) {
+        AvailabilityInput input = photo != null ? AvailabilityInput.file(photo) : AvailabilityInput.text(details);
+        String what = photo != null ? "Read the timetable in your photo and re-plan your waterings to fit it?"
+                : "Re-plan your waterings to fit this availability?\n_\"" + details + "\"_";
+        return propose(userId, kind, what + "\n\nYou can undo it afterwards.", "Yes, update my schedule", () -> {
+            AgentResponse r = agent.run(AgentRequest.updateSchedule(userId, input));
+            RescheduleResult result = r.resultAs(RescheduleResult.class);
+            return reply(result.explanation(), kind, r, List.of(
+                    new ChatAction("Undo", "UNDO_SCHEDULE", Map.of()), ChatAction.open("Open calendar", "calendar.html")));
+        });
+    }
+
+    private ChatReply proposeUndo(long userId, String kind) {
+        Optional<String> last = scheduleManager.lastChange(userId);
+        if (last.isEmpty()) {
+            return ChatReply.of("There's no schedule change to undo.", kind);
+        }
+        String change = last.get();
+        return propose(userId, kind, "Undo your last schedule change?\n_" + change + "_", "Yes, undo it",
+                () -> scheduleManager.lastChange(userId).filter(change::equals).isPresent() ? undo(userId, kind)
+                        : ChatReply.of("Your last schedule change has changed since I asked, so I didn't undo anything. "
+                                + "Ask me again if you still want to undo it.", kind));
+    }
+
     private ChatReply undo(long userId, String kind) {
         AgentResponse r = agent.run(AgentRequest.undoSchedule(userId));
         Optional<?> undone = r.resultAs(Optional.class);
@@ -474,7 +652,16 @@ public class ChatAgent {
                                     Map.of("name", intent.spaceName(), "plantId", plant.getId())),
                             ChatAction.open("Open Room Builder", "spaces.html")), kind, List.of());
         }
-        return placeIn(userId, plant.getId(), space.get().getId(), kind);
+        SpaceComponent target = space.get();
+        if (plant.getSpot() != null && Objects.equals(plant.getSpot().getId(), target.getId())) {
+            return ChatReply.of(plant.getDisplayName() + " is already in " + target.path() + ".", kind);
+        }
+        long plantId = plant.getId();
+        long spaceId = target.getId();
+        boolean moving = plant.getSpot() != null;
+        return propose(userId, kind, "Put **" + plant.getDisplayName() + "** in " + target.path() + "?"
+                        + (moving ? " It's in " + plant.getSpot().path() + " now." : ""),
+                moving ? "Yes, move it" : "Yes, put it there", () -> placeIn(userId, plantId, spaceId, kind));
     }
 
     private ChatReply placeIn(long userId, long plantId, long spaceId, String kind) {
@@ -515,20 +702,53 @@ public class ChatAgent {
         sb.append('\n');
     }
 
+    private ChatReply proposeWatered(OwnedPlant plant, long userId, String kind) {
+        long plantId = plant.getId();
+        return propose(userId, kind, "Mark **" + plant.getDisplayName() + "** as watered now?", "Yes, mark it watered",
+                () -> water(userId, plantId, kind));
+    }
+
     private ChatReply water(long userId, long plantId, String kind) {
         AgentResponse r = agent.run(AgentRequest.markWatered(userId, plantId));
         return reply(r.resultAs(String.class), kind, r, List.of());
     }
 
-    private ChatReply waterAllDue(long userId, String kind) {
+    private ChatReply proposeWaterAllDue(long userId, String kind) {
         WateringOverview o = agent.run(AgentRequest.wateringOverview(userId)).resultAs(WateringOverview.class);
-        List<String> names = new ArrayList<>();
-        for (WateringOverview.Item i : concat(o.overdue(), o.dueNow())) {
-            agent.run(AgentRequest.markWatered(userId, i.plantId()));
-            names.add(i.plantName());
+        List<WateringOverview.Item> due = concat(o.overdue(), o.dueNow());
+        if (due.isEmpty()) {
+            return ChatReply.of("Nothing is due right now, so there's nothing to mark as watered.", kind);
         }
-        return ChatReply.of(names.isEmpty() ? "Nothing was due, so there was nothing to mark."
-                : "Marked as watered: " + String.join(", ", names) + ".", kind);
+        StringBuilder sb = new StringBuilder("Mark these plants as watered now?\n");
+        due.forEach(i -> sb.append("- ").append(i.plantName()).append('\n'));
+        return propose(userId, kind, sb.toString().trim(), "Yes, mark them watered", () -> {
+            List<String> names = new ArrayList<>();
+            for (WateringOverview.Item i : due) {
+                agent.run(AgentRequest.markWatered(userId, i.plantId()));
+                names.add(i.plantName());
+            }
+            return ChatReply.of("Marked as watered: " + String.join(", ", names) + ".", kind);
+        });
+    }
+
+    private ChatReply proposeNotify(long userId, OwnedPlant plant, boolean on, String kind) {
+        long plantId = plant.getId();
+        return propose(userId, kind, "Turn watering reminders " + (on ? "on" : "off") + " for **"
+                        + plant.getDisplayName() + "**?", on ? "Yes, turn them on" : "Yes, turn them off",
+                remindersPayload(on), () -> notify(userId, plantId, on, false, kind));
+    }
+
+    private ChatReply proposeNotifyAll(long userId, boolean on, String kind) {
+        int count = plantRepository.findAll(userId).size();
+        String which = count == 0 ? "the plants you add from now on" : yourPlants(count) + ", and for plants you add later";
+        return propose(userId, kind, "Turn watering reminders " + (on ? "on" : "off") + " for " + which + "?",
+                on ? "Yes, turn them on" : "Yes, turn them off", remindersPayload(on),
+                () -> notifyAll(userId, on, kind));
+    }
+
+    /** Lets the chat box ask the browser for permission to show reminders when the user approves turning them on. */
+    private static Map<String, Object> remindersPayload(boolean on) {
+        return on ? Map.of("enablesReminders", true) : Map.of();
     }
 
     private ChatReply notify(long userId, long plantId, boolean enabled, boolean rememberDefault, String kind) {
@@ -556,8 +776,13 @@ public class ChatAgent {
         user.setNotificationsAsked(true);
         user.setNotifyByDefault(enabled);
         userRepository.save(user);
-        return ChatReply.of((enabled ? "Reminders are on" : "Reminders are off") + " for all " + plants.size()
-                + " of your plants" + (enabled ? ", and for plants you add later." : "."), kind);
+        String scope = plants.isEmpty() ? "the plants you add from now on"
+                : yourPlants(plants.size()) + (enabled ? ", and for plants you add later" : "");
+        return ChatReply.of((enabled ? "Reminders are on" : "Reminders are off") + " for " + scope + ".", kind);
+    }
+
+    private static String yourPlants(int count) {
+        return count == 1 ? "your plant" : "all " + count + " of your plants";
     }
 
     private ChatReply checkFit(long userId, ChatIntent intent, String kind) {
@@ -569,26 +794,53 @@ public class ChatAgent {
                     : "Which wishlist plant do you mean? You have: " + String.join(", ",
                             wishlist.stream().map(DesiredPlant::getDisplayName).toList()) + ".", kind);
         }
-        Optional<SpaceComponent> space = spaceManager.findByName(userId, intent.spaceName());
-        if (space.isPresent()) {
-            desired.setIntendedSpaceId(space.get().getId());
-            plantRepository.saveDesired(desired);
+        Optional<SpaceComponent> named = spaceManager.findByName(userId, intent.spaceName());
+        if (named.isEmpty() || Objects.equals(named.get().getId(), desired.getIntendedSpaceId())) {
+            return fitReply(userId, desired, kind);
         }
-        return fitReply(userId, desired, kind);
+        // A different space than the one the user picked: check it without saving it, and offer to plan it there.
+        SpaceComponent space = named.get();
+        DesiredFit fit = DesiredFitRequests.evaluate(agent, userId, desired, space);
+        long desiredId = desired.getId();
+        long spaceId = space.getId();
+        String path = space.path();
+        PendingChange plan = pending.propose(userId, kind, "Plan to put " + desired.getDisplayName() + " in " + path,
+                "Yes, plan it there", () -> {
+                    DesiredPlant d = plantRepository.findDesiredById(userId, desiredId);
+                    d.setIntendedSpaceId(spaceId);
+                    d.recordFit(fit.verdict(), fit.explanation(), LocalDateTime.now(clock));
+                    plantRepository.saveDesired(d);
+                    return new ChatReply("Noted: you'd put **" + d.getDisplayName() + "** in " + path + ".",
+                            List.of(ChatAction.open("Open wishlist", "desiredplants.html")), kind, List.of());
+                });
+        return new ChatReply(fitText(fit, path) + "\n\nShould I note " + path + " as where you'd put "
+                + desired.getDisplayName() + "?",
+                List.of(PendingChanges.button(plan.approveLabel(), "APPROVE", plan),
+                        ChatAction.open("Open wishlist", "desiredplants.html")),
+                kind, List.of("LOOKUP_PLANT_INFO"));
     }
 
+    /** The fit for the space the user already picked: checked and recorded, as on the wishlist page. */
     private ChatReply fitReply(long userId, DesiredPlant desired, String kind) {
         if (desired.getIntendedSpaceId() == null) {
             return ChatReply.of("Which space are you thinking of for " + desired.getDisplayName() + "?", kind);
         }
         SpaceComponent space = spaceManager.getSpace(userId, desired.getIntendedSpaceId());
         DesiredFit fit = DesiredFitRequests.check(agent, plantRepository, userId, desired, space, LocalDateTime.now(clock));
-        return new ChatReply("**" + fit.verdict().name().charAt(0) + fit.verdict().name().substring(1).toLowerCase(Locale.ROOT)
-                + " fit** for " + space.path() + ": " + fit.explanation(),
+        return new ChatReply(fitText(fit, space.path()),
                 List.of(ChatAction.open("Open wishlist", "desiredplants.html")), kind, List.of("LOOKUP_PLANT_INFO"));
     }
 
-    /** F08 from the chat box: changes the care-note fields the message names and keeps the rest. */
+    private static String fitText(DesiredFit fit, String path) {
+        return "**" + fit.verdict().name().charAt(0) + fit.verdict().name().substring(1).toLowerCase(Locale.ROOT)
+                + " fit** for " + path + ": " + fit.explanation();
+    }
+
+    /**
+     * F08 from the chat box: works out which care-note fields the message
+     * changes and proposes them, each with its current value; the other
+     * fields are kept.
+     */
     private ChatReply updateCareNotes(long userId, ChatIntent intent, String text, String kind) {
         OwnedPlant plant = resolveOwned(userId, intent.plantName(), text);
         if (plant == null) {
@@ -603,6 +855,27 @@ public class ChatAgent {
                     List.of(ChatAction.open("Open its care notes", "currentlistofplants.html?plant=" + plant.getId())),
                     kind, List.of());
         }
+        StringBuilder sb = new StringBuilder("Change **" + plant.getDisplayName() + "**'s care notes?\n");
+        edits.forEach((field, value) -> {
+            String current = currentValue(now, field);
+            sb.append("- ").append(CARE_LABELS.getOrDefault(field, field)).append(": ")
+              .append(AgentPlanner.CLEAR.equalsIgnoreCase(value) ? "(clear it)" : value)
+              .append(current == null ? " (now empty)"
+                      : " (now: " + (current.length() > 60 ? current.substring(0, 57) + "..." : current) + ")")
+              .append('\n');
+        });
+        if (edits.containsKey("watering") || edits.containsKey("wateringFrequency")) {
+            sb.append("\nI'll re-plan its waterings to match.");
+        }
+        long plantId = plant.getId();
+        Map<String, String> chosen = new LinkedHashMap<>(edits);
+        return propose(userId, kind, sb.toString().trim(), "Yes, save the changes",
+                () -> applyCareEdits(userId, plantId, chosen, kind));
+    }
+
+    private ChatReply applyCareEdits(long userId, long plantId, Map<String, String> edits, String kind) {
+        OwnedPlant plant = plantRepository.findOwned(userId, plantId);
+        PlantCareProfile now = plant.getCare().toProfile(plant.getScientificName(), plant.getCommonName());
         plant.getCare().applyEdits(new PlantCareProfile(now.scientificName(), now.commonName(),
                 edited(edits, "family", now.family()), edited(edits, "description", now.description()),
                 edited(edits, "watering", now.watering()), edited(edits, "wateringFrequency", now.wateringFrequency()),
@@ -643,10 +916,16 @@ public class ChatAgent {
         if (note == null || note.isBlank()) {
             return ChatReply.of("What should the note for " + plant.getDisplayName() + " say?", kind);
         }
-        plantRepository.saveNote(plant.getId(), PlantNote.Kind.USER, note.trim());
-        return new ChatReply("Saved to " + plant.getDisplayName() + "'s notes: \"" + note.trim() + "\"",
-                List.of(ChatAction.open("Open its notes", "currentlistofplants.html?plant=" + plant.getId())),
-                kind, List.of());
+        String clean = note.trim();
+        long plantId = plant.getId();
+        return propose(userId, kind, "Add this note to **" + plant.getDisplayName() + "**?\n_\"" + clean + "\"_",
+                "Yes, add the note", () -> {
+                    OwnedPlant owned = plantRepository.findOwned(userId, plantId);
+                    plantRepository.saveNote(owned.getId(), PlantNote.Kind.USER, clean);
+                    return new ChatReply("Saved to " + owned.getDisplayName() + "'s notes: \"" + clean + "\"",
+                            List.of(ChatAction.open("Open its notes", "currentlistofplants.html?plant=" + owned.getId())),
+                            kind, List.of());
+                });
     }
 
     private static final Map<String, String> CARE_LABELS = Map.ofEntries(
@@ -655,6 +934,25 @@ public class ChatAgent {
             Map.entry("growthRate", "Growth rate"), Map.entry("hardinessZones", "Hardiness zones"),
             Map.entry("family", "Family"), Map.entry("description", "Description"), Map.entry("indoor", "Indoor"),
             Map.entry("poisonousToPets", "Poisonous to pets"), Map.entry("poisonousToHumans", "Poisonous to humans"));
+
+    /** The current value of a care-note field, as text; null when it is empty. */
+    private static String currentValue(PlantCareProfile c, String field) {
+        String value = switch (field) {
+            case "watering" -> c.watering();
+            case "wateringFrequency" -> c.wateringFrequency();
+            case "sunlight" -> c.sunlight().isEmpty() ? null : String.join(", ", c.sunlight());
+            case "careLevel" -> c.careLevel();
+            case "growthRate" -> c.growthRate();
+            case "hardinessZones" -> c.hardinessZones();
+            case "family" -> c.family();
+            case "description" -> c.description();
+            case "indoor" -> c.indoor() == null ? null : c.indoor().toString();
+            case "poisonousToPets" -> c.poisonousToPets() == null ? null : c.poisonousToPets().toString();
+            case "poisonousToHumans" -> c.poisonousToHumans() == null ? null : c.poisonousToHumans().toString();
+            default -> null;
+        };
+        return value == null || value.isBlank() ? null : value;
+    }
 
     private static String describeCare(PlantCareProfile c) {
         return "watering=" + c.watering() + "; wateringFrequency=" + c.wateringFrequency() + "; sunlight=" + c.sunlight()

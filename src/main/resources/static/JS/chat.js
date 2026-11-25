@@ -1,7 +1,10 @@
-// The CLI: a chat box for talking to the AI agent (Stage 1 CliConsole).
-// On normal pages it is a floating widget (bottom-right "+" button); on
-// chat.html it fills the page. Messages go to POST /api/chat (with an optional
-// photo); buttons under the agent's replies go to POST /api/chat/action.
+// The chat box for talking to the AI agent (the terminal Agent.jar is the
+// other front end). On normal pages it is a floating widget (bottom-right "+"
+// button); on chat.html it fills the page. Messages go to POST /api/chat (with
+// an optional photo); buttons under the agent's replies go to
+// POST /api/chat/action. A message never changes data by itself: when it asks
+// for a change, the agent replies with a proposal, and only its Yes (APPROVE)
+// button makes the change.
 
 const PoChat = (() => {
     let root;      // the .chat-box element
@@ -10,6 +13,7 @@ const PoChat = (() => {
     let photoInput;
     let attached = null;
     let loadedHistory = false;
+    let lastOffer = []; // proposals under the latest agent reply; a typed "no" cancels them
 
     function mount(container, fullPage) {
         root = PO.textEl('div', '', 'chat-box' + (fullPage ? ' chat-full open' : ''));
@@ -76,7 +80,9 @@ const PoChat = (() => {
                     + '- "My monstera has yellow leaves" (attach a photo if you can)\n'
                     + '- "I\'m free weekday evenings after 6, away Dec 20-27"\n'
                     + '- "Recommend a low-maintenance plant that\'s safe for cats"\n'
-                    + '- "What needs water?" or "I watered the fern"' });
+                    + '- "What needs water?" or "I watered the fern"\n'
+                    + 'I never change anything on my own: when you ask for a change, I say exactly what I\'ll do '
+                    + 'and wait for you to press **Yes**.' });
             }
             history.forEach((m) => (m.role === 'USER' ? userBubble(m.text) : agentBubble({ text: m.text })));
         } catch (err) {
@@ -91,8 +97,14 @@ const PoChat = (() => {
         scroll();
     }
 
+    function proposalOf(action) {
+        return action.payload && action.payload.proposalId;
+    }
+
     function agentBubble(reply) {
-        const b = PO.textEl('div', '', 'msg msg-agent');
+        const actions = reply.actions || [];
+        const proposes = actions.some((a) => a.type === 'APPROVE');
+        const b = PO.textEl('div', '', 'msg msg-agent' + (proposes ? ' msg-proposal' : ''));
         const body = PO.textEl('div', '', 'msg-body');
         PO.renderRichText(body, reply.text);
         b.appendChild(body);
@@ -100,15 +112,29 @@ const PoChat = (() => {
             const meta = PO.textEl('div', 'Intent: ' + (reply.intent || '?') + ' · tools: '
                 + reply.toolsUsed.map((t) => t.toLowerCase().replace(/_/g, ' ')).join(' → '), 'msg-meta');
             b.appendChild(meta);
+        } else if (proposes) {
+            b.appendChild(PO.textEl('div', 'Intent: ' + (reply.intent || '?') + ' · nothing changed yet', 'msg-meta'));
         }
-        if (reply.actions && reply.actions.length) {
+        if (actions.length) {
             const row = PO.textEl('div', '', 'msg-actions');
-            reply.actions.forEach((a) => row.appendChild(PO.button(a.label, 'chip-btn', (e) => runAction(a, e.target, row))));
+            actions.forEach((a) => {
+                const kind = a.type === 'APPROVE' ? ' approve' : a.type === 'DECLINE' ? ' decline' : '';
+                const btn = PO.button(a.label, 'chip-btn' + kind, (e) => runAction(a, e.currentTarget, row));
+                if (proposalOf(a)) btn.dataset.proposal = proposalOf(a);
+                row.appendChild(btn);
+            });
             b.appendChild(row);
         }
+        lastOffer = actions.map(proposalOf).filter(Boolean);
         messages.appendChild(b);
         scroll();
         return b;
+    }
+
+    function closeProposals(ids) {
+        messages.querySelectorAll('button').forEach((b) => {
+            if (b.dataset.proposal && ids.includes(b.dataset.proposal)) b.disabled = true;
+        });
     }
 
     function thinking() {
@@ -134,7 +160,10 @@ const PoChat = (() => {
         const form = new FormData();
         if (text) form.append('message', text);
         if (photo) form.append('photo', photo, photo.name);
-        await call(() => PO.api('/api/chat', { method: 'POST', body: form }));
+        const offered = lastOffer;
+        const reply = await call(() => PO.api('/api/chat', { method: 'POST', body: form }));
+        // A typed "no" cancelled what the previous reply proposed, so its buttons no longer apply.
+        if (reply && reply.intent === 'DECLINE') closeProposals(offered);
     }
 
     async function runAction(action, btn, row) {
@@ -146,10 +175,17 @@ const PoChat = (() => {
             sendMessage(action.payload.text);
             return;
         }
-        row.querySelectorAll('button').forEach((b) => (b.disabled = true));
+        // A proposal's Yes/No buttons are answered together, wherever they appear (a typed "yes"
+        // shows them again); other proposals, like "Remember: ...", stay usable.
+        // A plain button closes the other plain buttons in its row.
+        const id = proposalOf(action);
+        (id ? messages : row).querySelectorAll('button').forEach((b) => {
+            if (id ? b.dataset.proposal === id : !b.dataset.proposal) b.disabled = true;
+        });
         btn.classList.add('chosen');
-        if (action.type === 'NOTIFY' && action.payload.enabled && 'Notification' in window
-            && Notification.permission === 'default') {
+        const turnsRemindersOn = (action.type === 'NOTIFY' && action.payload.enabled)
+            || (action.type === 'APPROVE' && action.payload.enablesReminders);
+        if (turnsRemindersOn && 'Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission();
         }
         await call(() => PO.api('/api/chat/action', { method: 'POST', json: { type: action.type, payload: action.payload } }));
@@ -162,9 +198,11 @@ const PoChat = (() => {
             const reply = await work();
             t.remove();
             agentBubble(reply);
+            return reply;
         } catch (err) {
             t.remove();
             agentBubble({ text: err.message });
+            return null;
         }
     }
 
