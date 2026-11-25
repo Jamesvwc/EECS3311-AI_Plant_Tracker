@@ -336,7 +336,7 @@ public class AgentController {
     /** UC07: shows the list, refreshing it first when the owned list changed since the last refresh. */
     public RecommendationList getRecommendations(long userId, RecommendationEngine.SortBy sortBy) {
         User user = userRepository.findById(userId);
-        boolean hasData = !plantRepository.findAll(userId).isEmpty() || !memory.getPreferences(userId).likes().isEmpty();
+        boolean hasData = knowsUserTaste(userId);
         String message = null;
         boolean refreshed = false;
         if (user.isRecommendationsStale() && hasData) {
@@ -353,7 +353,13 @@ public class AgentController {
         return new RecommendationList(sortRecommendations(userId, sortBy), refreshed, message);
     }
 
+    /** UC07 "refresh": rebuilds the automatic list. An error when the agent knows nothing about the user yet. */
     public List<RecommendedPlant> refreshRecommendations(long userId) {
+        userRepository.findById(userId);
+        if (!knowsUserTaste(userId)) {
+            throw new InvalidInputException("The agent doesn't know anything about you yet. Add a few plants "
+                    + "(or keep some recommendations you asked for) and try again.");
+        }
         agent.run(AgentRequest.recommendLearned(userId));
         return sortRecommendations(userId, RecommendationEngine.SortBy.CARE);
     }
@@ -546,6 +552,16 @@ public class AgentController {
         return chatAgent.act(userId, type, payload);
     }
 
+    /** Read-only chat used by the terminal CLI (Agent.jar): answers questions, suggests commands for changes. */
+    public ChatReply askAgent(long userId, String message) {
+        return chatAgent.ask(userId, message);
+    }
+
+    /** Which action does this text ask for? Nothing is run or stored (Agent.jar: "did you mean ...?"). */
+    public SuggestedAction interpretRequest(long userId, String text) {
+        return chatAgent.interpret(userId, text);
+    }
+
     public List<ChatMessage> chatHistory(long userId) {
         return chatAgent.history(userId);
     }
@@ -555,6 +571,11 @@ public class AgentController {
     }
 
     // ================================================================ helpers
+
+    /** Automatic recommendations need something to learn from: owned plants or liked plants. */
+    private boolean knowsUserTaste(long userId) {
+        return !plantRepository.findAll(userId).isEmpty() || !memory.getPreferences(userId).likes().isEmpty();
+    }
 
     private OwnedPlantView view(OwnedPlant p) {
         List<HealthRecord> health = plantRepository.findHealthRecords(p.getId());
