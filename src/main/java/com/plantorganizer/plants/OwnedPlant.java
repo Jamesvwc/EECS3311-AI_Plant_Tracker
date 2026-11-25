@@ -117,7 +117,15 @@ public class OwnedPlant {
         return commonName;
     }
 
+    /**
+     * Never null. JPA loads an embedded value whose columns are all null as
+     * null, which happens when a plant was added while no care source could
+     * be reached (UC02: its notes stay empty).
+     */
     public CareNotes getCare() {
+        if (care == null) {
+            care = new CareNotes();
+        }
         return care;
     }
 

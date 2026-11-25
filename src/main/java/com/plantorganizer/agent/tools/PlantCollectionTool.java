@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import com.plantorganizer.common.InvalidInputException;
 import com.plantorganizer.memory.AgentMemory;
 import com.plantorganizer.memory.UserPreference;
 import com.plantorganizer.plantinfo.CareLookup;
@@ -60,10 +61,26 @@ public class PlantCollectionTool implements Tool {
         };
     }
 
+    /**
+     * Rejects a name that no source recognises as a plant species. The care
+     * lookup asks Perenual first and then the LLM; the LLM marks names it does
+     * not know (it then describes a "similar plant" instead). When both say
+     * "unknown" there is no such plant, so nothing is saved. When a source
+     * could not be reached the lookup is missing and the plant is still added
+     * with empty care notes (UC02), since the name may well be real.
+     */
+    static void rejectUnknownSpecies(String name, PlantCareProfile profile) {
+        if (profile != null && profile.similarPlantName() != null) {
+            throw new InvalidInputException("No plant called \"" + name + "\" could be found. Check the scientific "
+                    + "name (genus and species, e.g. \"Monstera deliciosa\") and try again.");
+        }
+    }
+
     private OwnedPlant addOwned(long userId, Map<String, Object> args) {
         CareLookup lookup = ToolArgs.optional(args, "lookup", CareLookup.class);
         PlantCareProfile profile = lookup != null ? lookup.profile() : null;
         String scientific = ToolArgs.required(args, "scientificName", String.class);
+        rejectUnknownSpecies(scientific, profile);
         String common = ToolArgs.optional(args, "commonName", String.class);
         if (common == null && profile != null) {
             common = profile.commonName();
@@ -85,8 +102,16 @@ public class PlantCollectionTool implements Tool {
     }
 
     private DesiredPlant addDesired(long userId, Map<String, Object> args) {
-        DesiredPlant plant = new DesiredPlant(userId, ToolArgs.required(args, "scientificName", String.class),
-                ToolArgs.optional(args, "commonName", String.class), ToolArgs.optional(args, "spaceId", Long.class),
+        CareLookup lookup = ToolArgs.optional(args, "lookup", CareLookup.class);
+        PlantCareProfile profile = lookup != null ? lookup.profile() : null;
+        String scientific = ToolArgs.required(args, "scientificName", String.class);
+        rejectUnknownSpecies(scientific, profile);
+        String common = ToolArgs.optional(args, "commonName", String.class);
+        if (common == null && profile != null) {
+            common = profile.commonName();
+        }
+        DesiredPlant plant = new DesiredPlant(userId, scientific,
+                common, ToolArgs.optional(args, "spaceId", Long.class),
                 ToolArgs.optional(args, "note", String.class), ToolArgs.optional(args, "imageUrl", String.class),
                 LocalDateTime.now(clock));
         memory.savePreference(userId, UserPreference.Kind.LIKE, "wants " + plant.getDisplayName()

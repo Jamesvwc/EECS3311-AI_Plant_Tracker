@@ -240,7 +240,19 @@ public class AgentPlanner {
                     }),
                     PlanStep.then(ToolType.CALENDAR, r -> withPlant(args(userId, "generate"),
                             r.get(ToolType.PLANT_COLLECTION, OwnedPlant.class).getId())));
-            case ADD_DESIRED_PLANT -> List.of(PlanStep.of(ToolType.PLANT_COLLECTION, merge(args(userId, "addDesired"), p)));
+            case ADD_DESIRED_PLANT -> {
+                PlanStep add = PlanStep.then(ToolType.PLANT_COLLECTION, r -> {
+                    Map<String, Object> a = merge(args(userId, "addDesired"), p);
+                    putIfPresent(a, "lookup", r.get(ToolType.LOOKUP_PLANT_INFO, Object.class));
+                    return a;
+                });
+                String scientificName = (String) p.get("scientificName");
+                // Same check as owned plants: a name no source recognises is rejected by the tool.
+                yield scientificName == null || scientificName.isBlank() ? List.of(add) : List.of(
+                        PlanStep.optional(ToolType.LOOKUP_PLANT_INFO, Map.of(PlantInfoTool.ARG_QUERY,
+                                com.plantorganizer.plantinfo.PlantQuery.of(scientificName, (String) p.get("commonName")))),
+                        add);
+            }
             case GENERATE_SCHEDULE -> List.of(PlanStep.of(ToolType.CALENDAR, merge(args(userId, "generate"), p)));
             case RESEARCH_WATERING -> List.of(
                     PlanStep.of(ToolType.WEB_SEARCH, Map.of(
